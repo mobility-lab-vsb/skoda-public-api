@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "myskoda-developer-api"
+version = "0.1.0"
+authors = [
+  { name="net0045", email="stepan.netolicky@vsb.cz" },
+]
+description = "Asynchronous Python library for the MySkoda Developer API"
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: MIT License",
+    "Operating System :: OS Independent",
+    "Framework :: AsyncIO",
+]
+dependencies = [
+    "aiohttp>=3.9.0",
+    "pydantic>=2.5.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/mobility-lab-vsb/myskoda-developer-api"
+"Bug Tracker" = "https://github.com/mobility-lab-vsb/myskoda-developer-api/issues"
