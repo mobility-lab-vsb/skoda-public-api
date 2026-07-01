@@ -1,0 +1,15 @@
+Podle test API odpovědi rozděleno do hlavních objektů
+ - Vehicle (main)
+    - air_conditioning.py   
+    - charging.py
+    - driving_range.py
+    - parking_position.py
+    - vehicle_status.py
+
+V každém z těchto filů vytvářet třídy related k tomu danému hlavnímu objektu
+např. objekt status 
+    -> obsahuje 3 atributy (overall, detail, carCapturedTimestamp)
+        - pro tyto atributy vytvořeny 2 třídy a jeden je jednoduhý typ str (OverallVehicleStatus, VehicleStatusDetail a CarCapturedTimeStamp)
+        - první 2 objekty jsou related k objektu status, proto jsou ve stejném filu
+        - pokud máme nějakou třídu, která se používá u více objektů => do common.py
+
