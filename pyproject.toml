@@ -25,3 +25,13 @@ dependencies = [
 [project.urls]
 "Homepage" = "https://github.com/mobility-lab-vsb/myskoda-developer-api"
 "Bug Tracker" = "https://github.com/mobility-lab-vsb/myskoda-developer-api/issues"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=9.0.0",
+    "pytest-asyncio>=0.23.0",
+    "aresponses>=3.0.0",
+]
