@@ -1,10 +1,13 @@
-Podle test API odpovědi rozděleno do hlavních objektů
+Podle test Swagger rozděleno do hlavních objektů
  - Vehicle (main)
     - air_conditioning.py   
     - charging.py
     - driving_range.py
     - parking_position.py
     - vehicle_status.py
+    - active_ventilation.py
+    - parking_position.py
+    - auxiliary_heating.py
 
 V každém z těchto filů vytvářet třídy related k tomu danému hlavnímu objektu
 např. objekt status 
