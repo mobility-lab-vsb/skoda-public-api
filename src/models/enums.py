@@ -37,7 +37,15 @@ class DoorsState(str, Enum):
 class AuxiliaryHeatingState(str, Enum):
     HEATING = "HEATING"
     VENTILATION = "VENTILATION"
+    OFF = "OFF"
+    HEATING_AUXILIARY = "HEATING_AUXILIARY"
+    UNKNOWN = "UNKNOWN"
+    UNSUPPORTED = "UNSUPPORTED"
 
+class AuxiliaryHeatingStartMode(str, Enum):
+    HEATING = "HEATING"
+    VENTILATION = "VENTILATION"
+   
 class VentilationState(str, Enum):
     VENTILATION = "VENTILATION"
     PREHEATING = "PREHEATING"

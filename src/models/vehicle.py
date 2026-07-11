@@ -3,11 +3,12 @@ from typing import List, Optional
 from pydantic import Field
 
 from .base_model import BaseModel
-from .enums import (
-    TemperatureUnit
-)
+
 from .vehicle_status import VehicleStatus
 from .common import VehicleError
+from .parking_position import ParkingPosition
+from .auxiliary_heating import AuxiliaryHeating
+from .active_ventilation import ActiveVentilation
 
 class Odometer(BaseModel):
     """Odometer of the vehicle."""
@@ -22,6 +23,10 @@ class VehicleObject(BaseModel):
     render_url: Optional[str] = None
     odometer: Optional[Odometer] = None
     status: Optional[VehicleStatus] = None
+    parking_position: Optional[ParkingPosition] = None 
+    auxiliary_heating: Optional[AuxiliaryHeating] = None
+    active_ventilation: Optional[ActiveVentilation] = None
+
     #TODO: Add rest of the vehicle attributes like air_conditioning, driving_range, etc.
 
 class VehicleResponse(BaseModel):
