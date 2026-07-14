@@ -21,9 +21,10 @@ class OpenAPIClient:
         endpoint_result = await self.rest_api.get_vehicle_status(vin, include=include)
         return endpoint_result.result
     
-    async def start_air_conditioning(self, vin: str, target_temperature: float, spin: Optional[str] = None, unit: str = "CELSIUS") -> None:
-        """Start the air conditioning for the vehicle with the given VIN and target temperature."""
-        pass #TODO implementation by the swagger
+    async def start_air_conditioning(self, vin: str, temperature: float) -> None:
+        """Starts the air conditioning for the vehicle with the given VIN."""
+        payload = {"targetTemperature": temperature}
+        await self.rest_api.start_air_conditioning(vin, payload=payload)
     
     async def stop_air_conditioning(self, vin: str) -> None:
         """Stops the air_conditioning of the vehicle and return None if it was succesfull else catch an exception in HomeAssistant"""
@@ -75,11 +76,11 @@ class OpenAPIClient:
 
     async def start_charging(self, vin: str) -> None:
         """Starts the charging process for the vehicle with the given VIN."""
-        pass
+        await self.rest_api.start_charging(vin)
 
     async def stop_charging(self, vin: str) -> None:
-        """Stops the charging process of the vehicle and return None if it was succesfull else catch an exception in HomeAssistant."""
-        pass
+        """Stops the charging process for the vehicle with the given VIN."""
+        await self.rest_api.stop_charging(vin)
 
     async def set_reduced_current_limit(self, vin: str) -> None:
         """Sets the charging current limit (e.g., to REDUCED or MAXIMUM) for the vehicle with the given VIN."""
