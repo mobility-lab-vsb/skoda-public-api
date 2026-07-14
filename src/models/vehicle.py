@@ -9,11 +9,14 @@ from .common import VehicleError
 from .parking_position import ParkingPosition
 from .auxiliary_heating import AuxiliaryHeating
 from .active_ventilation import ActiveVentilation
+from .charging import Charging
+from .driving_range import DrivingRange
+from .air_conditioning import AirConditioning
 
 class Odometer(BaseModel):
     """Odometer of the vehicle."""
     mileage_in_km: int
-    car_captured_timestamp: str  # Assuming the unit is always kilometers, adjust if needed.
+    car_captured_timestamp: str
 
 class VehicleObject(BaseModel):
     """Pack whole vehicle object into one object for the vehicle."""
@@ -26,8 +29,9 @@ class VehicleObject(BaseModel):
     parking_position: Optional[ParkingPosition] = None 
     auxiliary_heating: Optional[AuxiliaryHeating] = None
     active_ventilation: Optional[ActiveVentilation] = None
-
-    #TODO: Add rest of the vehicle attributes like air_conditioning, driving_range, etc.
+    air_conditioning: Optional[AirConditioning] = None
+    driving_range: Optional[DrivingRange] = None
+    charging: Optional[Charging] = None
 
 class VehicleResponse(BaseModel):
     """Response object for vehicle data."""
