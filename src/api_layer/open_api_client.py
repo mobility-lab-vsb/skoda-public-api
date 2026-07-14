@@ -104,4 +104,11 @@ class OpenAPIClient:
     async def set_auto_unlock_plug(self, vin: str) -> None:
         """Sets the automatic unlocking behavior of the charging plug (e.g., PERMANENT or OFF) for the vehicle with the given VIN."""
         pass
+    async def set_charge_limit(self, vin: str, limit: int) -> None:
+        """Sets the maximum charging limit in percent for the vehicle with the given VIN."""
+        pass
+
+    async def set_target_temperature(self, vin: str, temperature: float) -> None:
+        """Sets the target temperature for AC or auxiliary heating for the vehicle with the given VIN."""
+        pass
     # TODO: Add more methods for other endpoints as needed
