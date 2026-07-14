@@ -162,4 +162,18 @@ class SkodaRestAPI:
         status = await self._make_post_request(url)
         return PostEndpointResult(url=url, status=status, headers={})
     
+    async def start_charging(self, vin: str) -> PostEndpointResult:
+        """Starts the charging process for the vehicle with the given VIN."""
+        url = f"/api/v1/vehicles/{vin}/charging/start"
+        
+        status = await self._make_post_request(url)
+        return PostEndpointResult(url=url, status=status, headers={})
+    
+    async def stop_charging(self, vin: str) -> PostEndpointResult:
+        """Stops the charging process for the given VIN"""
+        url = f"/api/v1/vehicles/{vin}/charging/stop"
+        
+        status = await self._make_post_request(url)
+        return PostEndpointResult(url=url, status=status, headers={})
+    
     #TODO rest of the methods
