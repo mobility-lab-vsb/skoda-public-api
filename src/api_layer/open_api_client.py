@@ -57,7 +57,6 @@ class OpenAPIClient:
         """Stops the active_ventilation of the vehicle and return None if it was succesfull else catch an exception in HomeAssistant"""
         await self.rest_api.stop_active_ventilation(vin)
 
-
     async def connect(self):
         """TODO: Implementation of connect mechanism."""
         pass
@@ -70,4 +69,39 @@ class OpenAPIClient:
         """TODO: Implementation of SPIN verification."""
         pass
 
+    async def refresh_auxiliary_heating(self, vin: str) -> None:
+        """Refreshes the auxiliary heating status of the vehicle with the given VIN."""
+        pass
+
+    async def start_charging(self, vin: str) -> None:
+        """Starts the charging process for the vehicle with the given VIN."""
+        pass
+
+    async def stop_charging(self, vin: str) -> None:
+        """Stops the charging process of the vehicle and return None if it was succesfull else catch an exception in HomeAssistant."""
+        pass
+
+    async def set_reduced_current_limit(self, vin: str) -> None:
+        """Sets the charging current limit (e.g., to REDUCED or MAXIMUM) for the vehicle with the given VIN."""
+        pass
+
+    async def set_seats_heating(self, vin: str) -> None:
+        """Configures the seats heating settings for the vehicle with the given VIN."""
+        pass
+
+    async def start_window_heating(self, vin: str) -> None:
+        """Starts the electric window heating for the vehicle with the given VIN."""
+        pass
+
+    async def stop_window_heating(self, vin: str) -> None:
+        """Stops the window heating of the vehicle and return None if it was succesfull else catch an exception in HomeAssistant."""
+        pass
+
+    async def set_windows_heating(self, vin: str) -> None:
+        """Configures the front and rear windows heating settings for the vehicle with the given VIN."""
+        pass
+
+    async def set_auto_unlock_plug(self, vin: str) -> None:
+        """Sets the automatic unlocking behavior of the charging plug (e.g., PERMANENT or OFF) for the vehicle with the given VIN."""
+        pass
     # TODO: Add more methods for other endpoints as needed
