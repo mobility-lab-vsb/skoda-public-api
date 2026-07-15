@@ -14,7 +14,7 @@ class WindowHeating(BaseModel):
 
 class AirConditioning(BaseModel):
     """Information about the vehicle's air conditioning."""
-    state: Optional[AirConditioningState] = None
+    state: AirConditioningState
     target_temperature: Optional[TargetTemperature] = None
     estimated_reach_of_target_temperature_at: Optional[str] = None
     air_conditioning_without_external_power: Optional[bool] = None

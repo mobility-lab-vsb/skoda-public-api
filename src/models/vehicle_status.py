@@ -30,4 +30,4 @@ class VehicleStatus(BaseModel):
     """Pack all the objects into one object for the vehicle status."""
     overall: OverallVehicleStatus
     detail: VehicleStatusDetail
-    car_captured_timestamp: str
+    car_captured_timestamp: Optional[str] = None

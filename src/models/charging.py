@@ -38,7 +38,7 @@ class ChargingSettings(BaseModel):
 
 class Charging(BaseModel):
     """Charging represents information about charging and battery settings."""
-    is_vehicle_in_saved_location: Optional[bool] = None
+    is_vehicle_in_saved_location: bool
     status: Optional[ChargingStatus] = None
     settings: Optional[ChargingSettings] = None
     car_captured_timestamp: Optional[str] = None
