@@ -1,3 +1,4 @@
+from typing import Optional
 from .base_model import BaseModel
 from .common import TargetTemperature
 from .enums import ( 
@@ -7,5 +8,5 @@ from .enums import (
 class ActiveVentilation(BaseModel):
     """Active ventilation status."""
     state: VentilationState
-    duration_in_seconds: int
-    car_captured_timestamp: str
+    duration_in_seconds: Optional[int] = None
+    car_captured_timestamp:  Optional[str] = None

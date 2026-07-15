@@ -1,4 +1,4 @@
-
+from typing import Optional
 from .base_model import BaseModel
 from .enums import ( 
     MovementState
@@ -12,6 +12,6 @@ class GPRCoordinates(BaseModel):
 class ParkingPosition(BaseModel):
     """Parking position information."""
     state: MovementState
-    gps_coordinates: GPRCoordinates
-    formatted_address: str
+    gps_coordinates: Optional[GPRCoordinates] = None
+    formatted_address: Optional[str] = None
 

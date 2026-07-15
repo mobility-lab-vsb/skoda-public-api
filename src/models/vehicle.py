@@ -16,13 +16,13 @@ from .air_conditioning import AirConditioning
 class Odometer(BaseModel):
     """Odometer of the vehicle."""
     mileage_in_km: int
-    car_captured_timestamp: str
+    car_captured_timestamp: Optional[str]
 
 class VehicleObject(BaseModel):
     """Pack whole vehicle object into one object for the vehicle."""
-    name: str
+    name: Optional[str] = None
     vin: str
-    license_plate: str
+    license_plate: Optional[str] = None
     render_url: Optional[str] = None
     odometer: Optional[Odometer] = None
     status: Optional[VehicleStatus] = None

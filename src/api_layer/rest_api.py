@@ -6,6 +6,9 @@ from aiohttp import ClientResponseError, ClientSession
 from .const import SANDBOX_BASE_URL, PRODUCTION_BASE_URL, TEST_BASE_URL
 from models.vehicle import VehicleResponse
 from models.vehicle_status import VehicleStatus
+from models.air_conditioning import AirConditioning
+from models.parking_position import ParkingPosition
+from models.auxiliary_heating import AuxiliaryHeating
 from .exceptions import (
     OpenApiError,
     OpenApiAuthenticationError,
@@ -114,6 +117,42 @@ class SkodaRestAPI:
         # Parse whole response into VehicleResponse model
         full_response = VehicleResponse.model_validate(raw_json)
         status_model = full_response.vehicle.status
+        
+        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
+    
+    async def get_air_conditioning(self, vin: str) -> GetEndpointResult[Optional[AirConditioning]]:
+        """Retrieve ONLY the vehicles air conditioning object by filtering via the 'include' parameter."""
+        url = f"/api/v1/vehicles/{vin}"        
+        params = {"include": "airConditioning"}
+
+        raw_json = await self._make_get_request(url, params=params)
+
+        full_response = VehicleResponse.model_validate(raw_json)
+        status_model = full_response.vehicle.air_conditioning
+        
+        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
+    
+    async def get_parking_positions(self, vin: str) -> GetEndpointResult[Optional[ParkingPosition]]:
+        """Retrieve ONLY the vehicle parking positions object by filtering via the 'include' parameter."""
+        url = f"/api/v1/vehicles/{vin}"        
+        params = {"include": "parkingPosition"}
+
+        raw_json = await self._make_get_request(url, params=params)
+
+        full_response = VehicleResponse.model_validate(raw_json)
+        status_model = full_response.vehicle.parking_position
+        
+        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
+    
+    async def get_auxiliary_heating(self, vin: str) -> GetEndpointResult[Optional[AuxiliaryHeating]]:
+        """Retrieve ONLY the vehicle auxiliary heating by filtering via the 'include' parameter."""
+        url = f"/api/v1/vehicles/{vin}"        
+        params = {"include": "auxiliaryHeating"}
+
+        raw_json = await self._make_get_request(url, params=params)
+
+        full_response = VehicleResponse.model_validate(raw_json)
+        status_model = full_response.vehicle.auxiliary_heating
         
         return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
     
