@@ -6,9 +6,12 @@ from aiohttp import ClientResponseError, ClientSession
 from .const import SANDBOX_BASE_URL, PRODUCTION_BASE_URL, TEST_BASE_URL
 from models.vehicle import VehicleResponse
 from models.vehicle_status import VehicleStatus
+from models.vehicle import Odometer
 from models.air_conditioning import AirConditioning
 from models.parking_position import ParkingPosition
 from models.auxiliary_heating import AuxiliaryHeating
+from models.charging import Charging
+from models.active_ventilation import ActiveVentilation
 from .exceptions import (
     OpenApiError,
     OpenApiAuthenticationError,
@@ -153,6 +156,42 @@ class SkodaRestAPI:
 
         full_response = VehicleResponse.model_validate(raw_json)
         status_model = full_response.vehicle.auxiliary_heating
+        
+        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
+
+    async def get_odometer(self, vin: str) -> GetEndpointResult[Optional[Odometer]]:
+        """Retrieve ONLY the vehicle odometer object by filtering via the 'include' parameter."""
+        url = f"/api/v1/vehicles/{vin}"        
+        params = {"include": "odometer"}
+
+        raw_json = await self._make_get_request(url, params=params)
+
+        full_response = VehicleResponse.model_validate(raw_json)
+        status_model = full_response.vehicle.odometer
+        
+        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
+    
+    async def get_charging(self, vin: str) -> GetEndpointResult[Optional[Charging]]:
+        """Retrieve ONLY the vehicle charging object by filtering via the 'include' parameter."""
+        url = f"/api/v1/vehicles/{vin}"        
+        params = {"include": "charging"}
+
+        raw_json = await self._make_get_request(url, params=params)
+
+        full_response = VehicleResponse.model_validate(raw_json)
+        status_model = full_response.vehicle.charging
+        
+        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
+
+    async def get_active_ventilation(self, vin: str) -> GetEndpointResult[Optional[ActiveVentilation]]:
+        """Retrieve ONLY the vehicle active ventilation object by filtering via the 'include' parameter."""
+        url = f"/api/v1/vehicles/{vin}"        
+        params = {"include": "activeVentilation"}
+
+        raw_json = await self._make_get_request(url, params=params)
+
+        full_response = VehicleResponse.model_validate(raw_json)
+        status_model = full_response.vehicle.active_ventilation
         
         return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
     

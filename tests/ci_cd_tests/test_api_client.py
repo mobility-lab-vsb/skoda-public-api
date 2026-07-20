@@ -180,3 +180,115 @@ async def test_get_parking_position_test_endpoint():
 async def test_get_auxiliary_heating_test_endpoint():
     pass
 """
+@pytest.mark.asyncio
+async def test_get_odometer_test_endpoint():
+    """Test of the real API call to the Škoda Open API for vehicle odometer using a fake API key."""
+    
+    vin = "DMBGF9NY3NF032963"
+    api_key = "fXXYXYYXXYHJFJDDFH"
+
+    async with aiohttp.ClientSession() as session:
+        api = SkodaRestAPI(api_key=api_key, session=session)
+        api._base_url = TEST_BASE_URL
+
+        endpoint_result = await api.get_odometer(vin)
+        odometer = endpoint_result.result
+
+        assert isinstance(endpoint_result, GetEndpointResult)
+        assert odometer is not None
+        
+        # Odometer Attributes
+        assert odometer.mileage_in_km is not None
+        assert isinstance(odometer.mileage_in_km, int)
+        
+        assert odometer.car_captured_timestamp is None or isinstance(
+            odometer.car_captured_timestamp, str
+        )
+
+@pytest.mark.asyncio
+async def test_get_charging_test_endpoint():
+    """Test of the real API call to the Škoda Open API for vehicle charging using a fake API key."""
+    
+    vin = "DMBGF9NY3NF032963"
+    api_key = "fXXYXYYXXYHJFJDDFH"
+
+    async with aiohttp.ClientSession() as session:
+        api = SkodaRestAPI(api_key=api_key, session=session)
+        api._base_url = TEST_BASE_URL
+
+        endpoint_result = await api.get_charging(vin)
+        charging = endpoint_result.result
+
+        assert isinstance(endpoint_result, GetEndpointResult)
+        assert charging is not None
+        
+        
+        assert charging.is_vehicle_in_saved_location is not None
+        assert isinstance(charging.is_vehicle_in_saved_location, bool)
+        
+       
+        assert charging.car_captured_timestamp is None or isinstance(
+            charging.car_captured_timestamp, str
+        )
+
+        # Charging Status Attribs
+        if charging.status is not None:
+            assert charging.status.charging_rate_in_kilometers_per_hour is None or isinstance(
+                charging.status.charging_rate_in_kilometers_per_hour, float
+            )
+            assert charging.status.charge_power_in_kw is None or isinstance(
+                charging.status.charge_power_in_kw, float
+            )
+            assert charging.status.remaining_time_to_fully_charged_in_minutes is None or isinstance(
+                charging.status.remaining_time_to_fully_charged_in_minutes, int
+            )
+            assert charging.status.fully_charged_at is None or isinstance(
+                charging.status.fully_charged_at, str
+            )
+            assert charging.status.state is None or isinstance(
+                charging.status.state, ChargingState
+            )
+            assert charging.status.charge_type is None or isinstance(
+                charging.status.charge_type, ChargeType
+            )
+            
+            # Battery Status Attribs
+            if charging.status.battery is not None:
+                assert charging.status.battery.remaining_cruising_range_in_meters is None or isinstance(
+                    charging.status.battery.remaining_cruising_range_in_meters, int
+                )
+                assert charging.status.battery.state_of_charge_in_percent is None or isinstance(
+                    charging.status.battery.state_of_charge_in_percent, int
+                )
+
+        # Charging Settings Attribs
+        if charging.settings is not None:
+            assert charging.settings.target_state_of_charge_in_percent is None or isinstance(
+                charging.settings.target_state_of_charge_in_percent, int
+            )
+            assert charging.settings.battery_care_mode_target_value_in_percent is None or isinstance(
+                charging.settings.battery_care_mode_target_value_in_percent, int
+            )
+            assert charging.settings.preferred_charge_mode is None or isinstance(
+                charging.settings.preferred_charge_mode, ChargeMode
+            )
+            
+            # List of available charge modes
+            assert charging.settings.available_charge_modes is None or isinstance(
+                charging.settings.available_charge_modes, list
+            )
+            if charging.settings.available_charge_modes is not None:
+                assert all(isinstance(mode, ChargeMode) for mode in charging.settings.available_charge_modes)
+                
+            assert charging.settings.charging_care_mode is None or isinstance(
+                charging.settings.charging_care_mode, ChargeCareModeState
+            )
+            assert charging.settings.auto_unlock_plug_when_charged is None or isinstance(
+                charging.settings.auto_unlock_plug_when_charged, AutoUnlockPlugState
+            )
+            assert charging.settings.max_charge_current_ac is None or isinstance(
+                charging.settings.max_charge_current_ac, MaxChargeCurrentAcState
+            )
+            assert charging.settings.max_charge_current_ac_ampere is None or isinstance(
+                charging.settings.max_charge_current_ac_ampere, int
+            )
