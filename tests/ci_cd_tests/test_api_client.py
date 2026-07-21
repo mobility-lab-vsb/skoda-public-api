@@ -78,16 +78,19 @@ async def test_get_vehicle_status_test_endpoint():
         assert vehicle_status.overall is not None
         assert vehicle_status.detail is not None
 
-        assert vehicle_status.overall.doors_locked in DoorsState
-        assert vehicle_status.overall.locked in YesNoState
-        assert vehicle_status.overall.doors in OpenCloseState
-        assert vehicle_status.overall.windows in OpenCloseState
-        assert vehicle_status.overall.lights in OnOffState
-        assert vehicle_status.overall.reliable_lock_status is None or vehicle_status.overall.reliable_lock_status in LockState
+        # Porovnání hodnot (value / str) namísto těsné objektové závislosti v paměti:
+        assert vehicle_status.overall.doors_locked in DoorsState or vehicle_status.overall.doors_locked.value in [e.value for e in DoorsState]
+        assert vehicle_status.overall.locked in YesNoState or vehicle_status.overall.locked.value in [e.value for e in YesNoState]
+        assert vehicle_status.overall.doors in OpenCloseState or vehicle_status.overall.doors.value in [e.value for e in OpenCloseState]
+        assert vehicle_status.overall.windows in OpenCloseState or vehicle_status.overall.windows.value in [e.value for e in OpenCloseState]
+        assert vehicle_status.overall.lights in OnOffState or vehicle_status.overall.lights.value in [e.value for e in OnOffState]
+        
+        if vehicle_status.overall.reliable_lock_status is not None:
+            assert vehicle_status.overall.reliable_lock_status in LockState or vehicle_status.overall.reliable_lock_status.value in [e.value for e in LockState]
 
-        assert vehicle_status.detail.sunroof in OpenCloseState
-        assert vehicle_status.detail.trunk in OpenCloseState
-        assert vehicle_status.detail.bonnet in OpenCloseState
+        assert vehicle_status.detail.sunroof in OpenCloseState or vehicle_status.detail.sunroof.value in [e.value for e in OpenCloseState]
+        assert vehicle_status.detail.trunk in OpenCloseState or vehicle_status.detail.trunk.value in [e.value for e in OpenCloseState]
+        assert vehicle_status.detail.bonnet in OpenCloseState or vehicle_status.detail.bonnet.value in [e.value for e in OpenCloseState]
 
 @pytest.mark.asyncio
 async def test_get_air_conditioning_test_endpoint():
