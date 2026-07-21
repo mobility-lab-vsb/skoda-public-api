@@ -8,7 +8,7 @@ version = "0.1.1"
 authors = [
   { name="net0045", email="stepan.netolicky@vsb.cz" },
 ]
-description = "Asynchronous Python library for the MySkoda Developer API"
+description = "Asynchronous Python library for the MyVSB Developer API"
 readme = "README.md"
 requires-python = ">=3.11"
 classifiers = [
