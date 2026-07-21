@@ -10,6 +10,7 @@ from models.air_conditioning import AirConditioning
 from models.parking_position import ParkingPosition
 from models.vehicle_status import VehicleStatus
 from models.vehicle import Odometer
+from models.enums import ChargingState, ChargeType, ChargeMode, ChargeCareModeState, AutoUnlockPlugState, MaxChargeCurrentAcState
 
 @pytest.mark.asyncio
 async def test_get_vehicle_test_endpoint():
@@ -20,7 +21,7 @@ async def test_get_vehicle_test_endpoint():
 
     async with aiohttp.ClientSession() as session:
         # Api initialization
-        api = SkodaRestAPI(api_key=api_key, session=session)
+        api = SkodaRestAPI(api_key="", session=session)
         api._base_url = TEST_BASE_URL #TODO: then change to real test endpoint 
 
         endpoint_result = await api.get_vehicle(vin)
@@ -69,7 +70,7 @@ async def test_get_vehicle_status_test_endpoint():
     api_key = "fXXYXYYXXYHJFJDDFH"
 
     async with aiohttp.ClientSession() as session:
-        api = SkodaRestAPI(api_key=api_key, session=session)
+        api = SkodaRestAPI(api_key="", session=session)
         api._base_url = TEST_BASE_URL
 
         endpoint_result = await api.get_vehicle_status(vin)
@@ -107,7 +108,7 @@ async def test_get_air_conditioning_test_endpoint():
     api_key = "fXXYXYYXXYHJFJDDFH"
 
     async with aiohttp.ClientSession() as session:
-        api = SkodaRestAPI(api_key=api_key, session=session)
+        api = SkodaRestAPI(api_key="", session=session)
         api._base_url = TEST_BASE_URL
 
         endpoint_result = await api.get_air_conditioning(vin)
@@ -155,7 +156,7 @@ async def test_get_parking_position_test_endpoint():
     api_key = "fXXYXYYXXYHJFJDDFH"
 
     async with aiohttp.ClientSession() as session:
-        api = SkodaRestAPI(api_key=api_key, session=session)
+        api = SkodaRestAPI(api_key="", session=session)
         api._base_url = TEST_BASE_URL
 
         endpoint_result = await api.get_parking_positions(vin)     
@@ -188,7 +189,7 @@ async def test_get_odometer_test_endpoint():
     api_key = "fXXYXYYXXYHJFJDDFH"
 
     async with aiohttp.ClientSession() as session:
-        api = SkodaRestAPI(api_key=api_key, session=session)
+        api = SkodaRestAPI(api_key="", session=session)
         api._base_url = TEST_BASE_URL
 
         endpoint_result = await api.get_odometer(vin)
@@ -213,7 +214,7 @@ async def test_get_charging_test_endpoint():
     api_key = "fXXYXYYXXYHJFJDDFH"
 
     async with aiohttp.ClientSession() as session:
-        api = SkodaRestAPI(api_key=api_key, session=session)
+        api = SkodaRestAPI(api_key="", session=session)
         api._base_url = TEST_BASE_URL
 
         endpoint_result = await api.get_charging(vin)
