@@ -27,7 +27,7 @@ dependencies = [
 "Bug Tracker" = "https://github.com/mobility-lab-vsb/myvsb-developer-api/issues"
 
 [tool.pytest.ini_options]
-pythonpath = ["src"]
+pythonpath = ["src/myskoda_openapi"]
 
 [project.optional-dependencies]
 test = [
