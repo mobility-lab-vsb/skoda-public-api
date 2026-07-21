@@ -1,16 +1,16 @@
 import aiohttp
 import pytest
 
-from api_layer.rest_api import SkodaRestAPI, GetEndpointResult
-from api_layer.exceptions import OpenApiError
-from api_layer.const import TEST_BASE_URL
-from api_layer.exceptions import OpenApiAuthenticationError
-from models.enums import DoorsState, MovementState, TemperatureUnit, YesNoState, OpenCloseState, OnOffState, LockState, AirConditioningState
-from models.air_conditioning import AirConditioning 
-from models.parking_position import ParkingPosition
-from models.vehicle_status import VehicleStatus
-from models.vehicle import Odometer
-from models.enums import ChargingState, ChargeType, ChargeMode, ChargeCareModeState, AutoUnlockPlugState, MaxChargeCurrentAcState
+from myskoda_openapi.api_layer.rest_api import SkodaRestAPI, GetEndpointResult
+from myskoda_openapi.api_layer.exceptions import OpenApiError
+from myskoda_openapi.api_layer.const import TEST_BASE_URL
+from myskoda_openapi.api_layer.exceptions import OpenApiAuthenticationError
+from myskoda_openapi.models.enums import DoorsState, MovementState, TemperatureUnit, YesNoState, OpenCloseState, OnOffState, LockState, AirConditioningState
+from myskoda_openapi.models.air_conditioning import AirConditioning 
+from myskoda_openapi.models.parking_position import ParkingPosition
+from myskoda_openapi.models.vehicle_status import VehicleStatus
+from myskoda_openapi.models.vehicle import Odometer
+from myskoda_openapi.models.enums import ChargingState, ChargeType, ChargeMode, ChargeCareModeState, AutoUnlockPlugState, MaxChargeCurrentAcState
 
 @pytest.mark.asyncio
 async def test_get_vehicle_test_endpoint():

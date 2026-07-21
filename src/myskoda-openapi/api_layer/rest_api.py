@@ -110,7 +110,7 @@ class SkodaRestAPI:
         # Pack and retunr the result in GetEndpointResult
         return GetEndpointResult(url=url, raw_json=raw_json, result=full_response)
     
-    async def get_vehicle_status(self, vin: str) -> GetEndpointResult[Optional[VehicleStatus]]:
+    async def get_vehicle_status(self, vin: str, include: Optional[List[str]] = None) -> GetEndpointResult[Optional[VehicleStatus]]:
         """Retrieve ONLY the vehicle status by filtering via the 'include' parameter."""
         url = f"/api/v1/vehicles/{vin}"        
         # Set the 'include' parameter to 'status' to retrieve only the vehicle status
@@ -123,7 +123,7 @@ class SkodaRestAPI:
         
         return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
     
-    async def get_air_conditioning(self, vin: str) -> GetEndpointResult[Optional[AirConditioning]]:
+    async def get_air_conditioning(self, vin: str, include: Optional[List[str]] = None) -> GetEndpointResult[Optional[AirConditioning]]:
         """Retrieve ONLY the vehicles air conditioning object by filtering via the 'include' parameter."""
         url = f"/api/v1/vehicles/{vin}"        
         params = {"include": "airConditioning"}
@@ -135,7 +135,7 @@ class SkodaRestAPI:
         
         return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
     
-    async def get_parking_positions(self, vin: str) -> GetEndpointResult[Optional[ParkingPosition]]:
+    async def get_parking_positions(self, vin: str, include: Optional[List[str]] = None) -> GetEndpointResult[Optional[ParkingPosition]]:
         """Retrieve ONLY the vehicle parking positions object by filtering via the 'include' parameter."""
         url = f"/api/v1/vehicles/{vin}"        
         params = {"include": "parkingPosition"}
@@ -147,7 +147,7 @@ class SkodaRestAPI:
         
         return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
     
-    async def get_auxiliary_heating(self, vin: str) -> GetEndpointResult[Optional[AuxiliaryHeating]]:
+    async def get_auxiliary_heating(self, vin: str, include: Optional[List[str]] = None) -> GetEndpointResult[Optional[AuxiliaryHeating]]:
         """Retrieve ONLY the vehicle auxiliary heating by filtering via the 'include' parameter."""
         url = f"/api/v1/vehicles/{vin}"        
         params = {"include": "auxiliaryHeating"}
@@ -159,7 +159,7 @@ class SkodaRestAPI:
         
         return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
 
-    async def get_odometer(self, vin: str) -> GetEndpointResult[Optional[Odometer]]:
+    async def get_odometer(self, vin: str, include: Optional[List[str]] = None) -> GetEndpointResult[Optional[Odometer]]:
         """Retrieve ONLY the vehicle odometer object by filtering via the 'include' parameter."""
         url = f"/api/v1/vehicles/{vin}"        
         params = {"include": "odometer"}
@@ -171,7 +171,7 @@ class SkodaRestAPI:
         
         return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
     
-    async def get_charging(self, vin: str) -> GetEndpointResult[Optional[Charging]]:
+    async def get_charging(self, vin: str, include: Optional[List[str]] = None) -> GetEndpointResult[Optional[Charging]]:
         """Retrieve ONLY the vehicle charging object by filtering via the 'include' parameter."""
         url = f"/api/v1/vehicles/{vin}"        
         params = {"include": "charging"}
@@ -183,7 +183,7 @@ class SkodaRestAPI:
         
         return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
 
-    async def get_active_ventilation(self, vin: str) -> GetEndpointResult[Optional[ActiveVentilation]]:
+    async def get_active_ventilation(self, vin: str, include: Optional[List[str]] = None) -> GetEndpointResult[Optional[ActiveVentilation]]:
         """Retrieve ONLY the vehicle active ventilation object by filtering via the 'include' parameter."""
         url = f"/api/v1/vehicles/{vin}"        
         params = {"include": "activeVentilation"}
