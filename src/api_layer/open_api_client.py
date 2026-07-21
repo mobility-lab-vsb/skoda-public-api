@@ -58,6 +58,14 @@ class OpenAPIClient:
         """Stops the active_ventilation of the vehicle and return None if it was succesfull else catch an exception in HomeAssistant"""
         await self.rest_api.stop_active_ventilation(vin)
 
+    async def start_charging(self, vin: str) -> None:
+        """Starts the charging process for the vehicle with the given VIN."""
+        await self.rest_api.start_charging(vin)
+
+    async def stop_charging(self, vin: str) -> None:
+        """Stops the charging process for the vehicle with the given VIN."""
+        await self.rest_api.stop_charging(vin)
+
     async def connect(self):
         """TODO: Implementation of connect mechanism."""
         pass
@@ -70,17 +78,12 @@ class OpenAPIClient:
         """TODO: Implementation of SPIN verification."""
         pass
 
+    """
+    ======= NOT IMPLEMENTED FUNCTIONS - CAN BE USED SOMETIME IN THE FUTURE =======
+    """
     async def refresh_auxiliary_heating(self, vin: str) -> None:
         """Refreshes the auxiliary heating status of the vehicle with the given VIN."""
         pass
-
-    async def start_charging(self, vin: str) -> None:
-        """Starts the charging process for the vehicle with the given VIN."""
-        await self.rest_api.start_charging(vin)
-
-    async def stop_charging(self, vin: str) -> None:
-        """Stops the charging process for the vehicle with the given VIN."""
-        await self.rest_api.stop_charging(vin)
 
     async def set_reduced_current_limit(self, vin: str) -> None:
         """Sets the charging current limit (e.g., to REDUCED or MAXIMUM) for the vehicle with the given VIN."""
