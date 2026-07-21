@@ -2,8 +2,13 @@ import logging
 from typing import Any, Optional, List
 from aiohttp import ClientSession
 from .rest_api import SkodaRestAPI
-from models.vehicle import VehicleResponse
+from models.vehicle import VehicleResponse, Odometer
 from models.vehicle_status import VehicleStatus
+from models.active_ventilation import ActiveVentilation
+from models.air_conditioning import AirConditioning
+from models.parking_position import ParkingPosition
+from models.auxiliary_heating import AuxiliaryHeating
+from models.charging import Charging
 
 class OpenAPIClient:
     """Client for interacting with rest API and used in HomeAssistant."""
@@ -16,9 +21,39 @@ class OpenAPIClient:
         endpoint_result = await self.rest_api.get_vehicle(vin, include=include)
         return endpoint_result.result
     
-    async def get_vehicle_status(self, vin: str, include: Optional[List[str]] = None) -> VehicleStatus:
+    async def get_vehicle_status(self, vin: str) -> VehicleStatus:
         """Get the actual vehicle status and return the parsed Pydantic model."""
-        endpoint_result = await self.rest_api.get_vehicle_status(vin, include=include)
+        endpoint_result = await self.rest_api.get_vehicle_status(vin)
+        return endpoint_result.result
+    
+    async def get_air_conditioning(self, vin: str) -> AirConditioning:
+        """Get the actual vehicle status and return the parsed Pydantic model."""
+        endpoint_result = await self.rest_api.get_air_conditioning(vin)
+        return endpoint_result.result
+    
+    async def get_parking_positions(self, vin: str) -> ParkingPosition:
+        """Get the actual vehicle status and return the parsed Pydantic model."""
+        endpoint_result = await self.rest_api.get_parking_positions(vin)
+        return endpoint_result.result
+    
+    async def get_auxiliary_heating(self, vin: str) -> AuxiliaryHeating:
+        """Get the actual vehicle status and return the parsed Pydantic model."""
+        endpoint_result = await self.rest_api.get_auxiliary_heating(vin)
+        return endpoint_result.result
+    
+    async def get_odometer(self, vin: str) -> Odometer:
+        """Get the actual vehicle status and return the parsed Pydantic model."""
+        endpoint_result = await self.rest_api.get_odometer(vin)
+        return endpoint_result.result
+    
+    async def get_charging(self, vin: str) -> Charging:
+        """Get the actual vehicle status and return the parsed Pydantic model."""
+        endpoint_result = await self.rest_api.get_charging(vin)
+        return endpoint_result.result
+    
+    async def get_active_ventilation(self, vin: str) -> ActiveVentilation:
+        """Get the actual vehicle status and return the parsed Pydantic model."""
+        endpoint_result = await self.rest_api.get_active_ventilation(vin)
         return endpoint_result.result
     
     async def start_air_conditioning(self, vin: str, temperature: float) -> None:
