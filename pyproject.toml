@@ -3,8 +3,8 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "myskoda-developer-api"
-version = "0.1.1"
+name = "myvsb-developer-api"
+version = "0.1.2"
 authors = [
   { name="net0045", email="stepan.netolicky@vsb.cz" },
 ]
