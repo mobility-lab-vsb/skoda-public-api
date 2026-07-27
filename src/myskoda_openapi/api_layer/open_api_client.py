@@ -2,13 +2,13 @@ import logging
 from typing import Any, Optional, List
 from aiohttp import ClientSession
 from .rest_api import SkodaRestAPI
-from models.vehicle import VehicleResponse, Odometer
-from models.vehicle_status import VehicleStatus
-from models.active_ventilation import ActiveVentilation
-from models.air_conditioning import AirConditioning
-from models.parking_position import ParkingPosition
-from models.auxiliary_heating import AuxiliaryHeating
-from models.charging import Charging
+from ..models.vehicle import VehicleResponse, Odometer
+from ..models.vehicle_status import VehicleStatus
+from ..models.active_ventilation import ActiveVentilation
+from ..models.air_conditioning import AirConditioning
+from ..models.parking_position import ParkingPosition
+from ..models.auxiliary_heating import AuxiliaryHeating
+from ..models.charging import Charging
 
 class OpenAPIClient:
     """Client for interacting with rest API and used in HomeAssistant."""

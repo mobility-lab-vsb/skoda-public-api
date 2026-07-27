@@ -4,14 +4,14 @@ from typing import Generic, Optional, TypeVar, Any, List
 from dataclasses import dataclass
 from aiohttp import ClientResponseError, ClientSession
 from .const import SANDBOX_BASE_URL, PRODUCTION_BASE_URL, TEST_BASE_URL
-from models.vehicle import VehicleResponse
-from models.vehicle_status import VehicleStatus
-from models.vehicle import Odometer
-from models.air_conditioning import AirConditioning
-from models.parking_position import ParkingPosition
-from models.auxiliary_heating import AuxiliaryHeating
-from models.charging import Charging
-from models.active_ventilation import ActiveVentilation
+from ..models.vehicle import VehicleResponse
+from ..models.vehicle_status import VehicleStatus
+from ..models.vehicle import Odometer
+from ..models.air_conditioning import AirConditioning
+from ..models.parking_position import ParkingPosition
+from ..models.auxiliary_heating import AuxiliaryHeating
+from ..models.charging import Charging
+from ..models.active_ventilation import ActiveVentilation
 from .exceptions import (
     OpenApiError,
     OpenApiAuthenticationError,
