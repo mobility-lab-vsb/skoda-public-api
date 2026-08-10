@@ -1,0 +1,280 @@
+{
+  "vehicle": {
+    "airConditioning": {
+      "state": "OFF",
+      "airConditioningAtUnlock": true,
+      "airConditioningWithoutExternalPower": true,
+      "carCapturedTimestamp": "2026-06-29T08:00:00Z",
+      "targetTemperature": {
+        "value": 22,
+        "unit": "CELSIUS"
+      },
+      "windowHeating": {
+        "enabled": true,
+        "front": "OFF",
+        "rear": "OFF"
+      }
+    },
+    "charging": {
+      "isVehicleInSavedLocation": false,
+      "carCapturedTimestamp": "2026-06-29T08:00:00Z",
+      "settings": {
+        "autoUnlockPlugWhenCharged": "PERMANENT",
+        "availableChargeModes": [
+          "MANUAL"
+        ],
+        "chargingCareMode": "ACTIVATED",
+        "maxChargeCurrentAc": "REDUCED",
+        "preferredChargeMode": "MANUAL",
+        "targetStateOfChargeInPercent": 80
+      },
+      "status": {
+        "battery": {
+          "remainingCruisingRangeInMeters": 60000,
+          "stateOfChargeInPercent": 20
+        },
+        "chargePowerInKw": 0,
+        "chargeType": "OFF",
+        "chargingRateInKilometersPerHour": 0,
+        "remainingTimeToFullyChargedInMinutes": 0,
+        "state": "CONNECT_CABLE"
+      }
+    },
+    "chargingProfiles": {
+      "profiles": [
+        {
+          "id": 1,
+          "name": "Home",
+          "settings": {
+            "autoUnlockPlugWhenCharged": "OFF",
+            "maxChargingCurrent": "MAXIMUM",
+            "minBatteryStateOfCharge": {
+              "minimumBatteryStateOfChargeInPercent": 50
+            },
+            "targetStateOfChargeInPercent": 100
+          },
+          "preferredChargingTimes": [
+            {
+              "id": 1,
+              "enabled": true,
+              "startTime": "08:00",
+              "endTime": "16:00"
+            },
+            {
+              "id": 2,
+              "enabled": false,
+              "startTime": "00:00",
+              "endTime": "00:00"
+            },
+            {
+              "id": 3,
+              "enabled": false,
+              "startTime": "00:00",
+              "endTime": "00:00"
+            },
+            {
+              "id": 4,
+              "enabled": false,
+              "startTime": "00:00",
+              "endTime": "00:00"
+            }
+          ],
+          "timers": [
+            {
+              "id": 1,
+              "enabled": true,
+              "type": "ONE_OFF",
+              "oneOffDay": "MONDAY",
+              "time": "08:00"
+            },
+            {
+              "id": 2,
+              "enabled": true,
+              "type": "ONE_OFF",
+              "oneOffDay": "MONDAY",
+              "time": "08:00"
+            },
+            {
+              "id": 3,
+              "enabled": true,
+              "type": "RECURRING",
+              "recurringOn": [
+                "MONDAY",
+                "TUESDAY",
+                "WEDNESDAY",
+                "THURSDAY"
+              ],
+              "time": "08:00"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Work",
+          "settings": {
+            "autoUnlockPlugWhenCharged": "OFF",
+            "maxChargingCurrent": "MAXIMUM",
+            "minBatteryStateOfCharge": {
+              "enabled": true,
+              "minimumBatteryStateOfChargeInPercent": 20
+            },
+            "targetStateOfChargeInPercent": 90
+          },
+          "preferredChargingTimes": [
+            {
+              "id": 1,
+              "enabled": true,
+              "startTime": "08:00",
+              "endTime": "16:00"
+            },
+            {
+              "id": 2,
+              "enabled": false,
+              "startTime": "00:00",
+              "endTime": "00:00"
+            },
+            {
+              "id": 3,
+              "enabled": false,
+              "startTime": "00:00",
+              "endTime": "00:00"
+            },
+            {
+              "id": 4,
+              "enabled": false,
+              "startTime": "00:00",
+              "endTime": "00:00"
+            }
+          ],
+          "timers": [
+            {
+              "id": 1,
+              "enabled": true,
+              "type": "ONE_OFF",
+              "oneOffDay": "MONDAY",
+              "time": "08:00"
+            },
+            {
+              "id": 2,
+              "enabled": true,
+              "type": "ONE_OFF",
+              "oneOffDay": "MONDAY",
+              "time": "08:00"
+            },
+            {
+              "id": 3,
+              "enabled": true,
+              "type": "RECURRING",
+              "recurringOn": [
+                "MONDAY",
+                "TUESDAY",
+                "WEDNESDAY",
+                "THURSDAY"
+              ],
+              "time": "08:00"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Shopping mall",
+          "settings": {
+            "autoUnlockPlugWhenCharged": "OFF",
+            "maxChargingCurrent": "MAXIMUM",
+            "minBatteryStateOfCharge": {
+              "enabled": true
+            },
+            "targetStateOfChargeInPercent": 70
+          },
+          "preferredChargingTimes": [
+            {
+              "id": 1,
+              "enabled": true,
+              "startTime": "08:00",
+              "endTime": "16:00"
+            },
+            {
+              "id": 2,
+              "enabled": false,
+              "startTime": "00:00",
+              "endTime": "00:00"
+            },
+            {
+              "id": 3,
+              "enabled": false,
+              "startTime": "00:00",
+              "endTime": "00:00"
+            },
+            {
+              "id": 4,
+              "enabled": false,
+              "startTime": "00:00",
+              "endTime": "00:00"
+            }
+          ],
+          "timers": [
+            {
+              "id": 1,
+              "enabled": true,
+              "type": "ONE_OFF",
+              "oneOffDay": "MONDAY",
+              "time": "08:00"
+            },
+            {
+              "id": 2,
+              "enabled": true,
+              "type": "ONE_OFF",
+              "oneOffDay": "MONDAY",
+              "time": "08:00"
+            },
+            {
+              "id": 3,
+              "enabled": true,
+              "type": "RECURRING",
+              "recurringOn": [
+                "MONDAY",
+                "TUESDAY",
+                "WEDNESDAY",
+                "THURSDAY"
+              ],
+              "time": "08:00"
+            }
+          ]
+        }
+      ],
+      "carCapturedTimestamp": "2026-06-29T08:00:00Z"
+    },
+    "licensePlate": "1AB 2345",
+    "name": "Enyaq RS",
+    "odometer": {
+      "mileageInKm": 5395,
+      "carCapturedTimestamp": "2026-06-29T08:00:00Z"
+    },
+    "parkingPosition": {
+      "state": "PARKED",
+      "formattedAddress": "Jankovcova 49, 170 00 Prague, CZ",
+      "gpsCoordinates": {
+        "latitude": 50.1077077372878,
+        "longitude": 14.4544674576725
+      }
+    },
+    "renderUrl": "https://mspgwlivestorage.blob.core.windows.net/demomode/enyaq_rs_coupe_green_exterior_side.png",
+    "status": {
+      "overall": {
+        "doorsLocked": "OPENED",
+        "locked": "NO",
+        "doors": "OPEN",
+        "windows": "OPEN",
+        "lights": "OFF",
+        "reliableLockStatus": "UNLOCKED"
+      },
+      "detail": {
+        "sunroof": "UNSUPPORTED",
+        "trunk": "OPEN",
+        "bonnet": "CLOSED"
+      },
+      "carCapturedTimestamp": "2026-06-29T08:00:00Z"
+    },
+    "vin": "DMBGF9NY3NF032963"
+  }
+}

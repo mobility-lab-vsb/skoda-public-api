@@ -9,6 +9,9 @@ from myskoda_openapi.models.enums import DoorsState, MovementState, TemperatureU
 from myskoda_openapi.models.air_conditioning import AirConditioning 
 from myskoda_openapi.models.parking_position import ParkingPosition
 from myskoda_openapi.models.vehicle_status import VehicleStatus
+from myskoda_openapi.models.driving_range import FuelStatus
+from myskoda_openapi.models.charging_profiles import ChargingProfiles
+from myskoda_openapi.models.charging import Charging
 from myskoda_openapi.models.vehicle import Odometer
 from myskoda_openapi.models.enums import ChargingState, ChargeType, ChargeMode, ChargeCareModeState, AutoUnlockPlugState, MaxChargeCurrentAcState
 
@@ -43,7 +46,6 @@ async def test_get_vehicle_test_endpoint():
         assert vehicle_data.vehicle.render_url is None or isinstance(
             vehicle_data.vehicle.render_url, str
         )
-        #Test instance objects (doplněn (Odometer, object) nebo str pro případ pydantic modelů)
         assert vehicle_data.vehicle.odometer is None or isinstance(
             vehicle_data.vehicle.odometer, (Odometer, object)
         )
@@ -55,6 +57,9 @@ async def test_get_vehicle_test_endpoint():
         )
         assert vehicle_data.vehicle.parking_position is None or isinstance(
             vehicle_data.vehicle.parking_position, (ParkingPosition, object)
+        )
+        assert vehicle_data.vehicle.fuel_status is None or isinstance(
+            vehicle_data.vehicle.fuel_status, (FuelStatus, object)
         )
 
         #TODO (David): add there other objects from issue 19
@@ -214,7 +219,7 @@ async def test_get_charging_test_endpoint():
         charging = endpoint_result.result
 
         assert isinstance(endpoint_result, GetEndpointResult)
-        assert charging is not None
+        assert charging is None or isinstance(charging, Charging)
         
         assert charging.is_vehicle_in_saved_location is not None
         assert isinstance(charging.is_vehicle_in_saved_location, bool)
@@ -285,3 +290,121 @@ async def test_get_charging_test_endpoint():
             assert charging.settings.max_charge_current_ac_ampere is None or isinstance(
                 charging.settings.max_charge_current_ac_ampere, int
             )
+
+
+@pytest.mark.asyncio
+async def test_get_fuel_status_endpoint():
+    """Test real/fake API call to the Škoda Open API for vehicle fuel status / driving range."""
+
+    vin = "DMBGF9NY3NF032963"
+
+    async with aiohttp.ClientSession() as session:
+        api = SkodaRestAPI(api_key="", session=session)
+        api._base_url = TEST_BASE_URL
+
+        endpoint_result = await api.get_fuel_status(vin)
+        fuel_status = endpoint_result.result
+
+        assert isinstance(endpoint_result, GetEndpointResult)
+        assert fuel_status is None or isinstance(fuel_status, FuelStatus)
+
+        if fuel_status is not None:
+            assert fuel_status.car_type is None or isinstance(fuel_status.car_type, str)
+            assert fuel_status.ad_blue_range is None or isinstance(
+                fuel_status.ad_blue_range, (int, float)
+            )
+            assert fuel_status.total_range_in_km is None or isinstance(
+                fuel_status.total_range_in_km, (int, float)
+            )
+            assert fuel_status.car_captured_timestamp is None or isinstance(
+                fuel_status.car_captured_timestamp, str
+            )
+
+            # Primary Engine Range
+            if fuel_status.primary_engine_range is not None:
+                engine = fuel_status.primary_engine_range
+                assert engine.engine_type is None or isinstance(engine.engine_type, str)
+                assert engine.current_soc_in_percent is None or isinstance(
+                    engine.current_soc_in_percent, (int, float)
+                )
+                assert engine.current_fuel_level_in_percent is None or isinstance(
+                    engine.current_fuel_level_in_percent, (int, float)
+                )
+                assert engine.remaining_range_in_km is None or isinstance(
+                    engine.remaining_range_in_km, (int, float)
+                )
+
+@pytest.mark.asyncio
+async def test_get_charging_profiles_endpoint():
+    """Test real/fake API call to the Škoda Open API for vehicle charging profiles."""
+
+    vin = "DMBGF9NY3NF032963"
+
+    async with aiohttp.ClientSession() as session:
+        api = SkodaRestAPI(api_key="", session=session)
+        api._base_url = TEST_BASE_URL
+
+        endpoint_result = await api.get_charging_profiles(vin)
+        charging_profiles = endpoint_result.result
+
+        assert isinstance(endpoint_result, GetEndpointResult)
+        assert charging_profiles is None or isinstance(charging_profiles, ChargingProfiles)
+
+        assert isinstance(charging_profiles.profiles, list)
+        assert charging_profiles.car_captured_timestamp is None or isinstance(
+            charging_profiles.car_captured_timestamp, str
+        )
+
+        # Check nested ChargingProfile structure inside profiles list
+        for profile in charging_profiles.profiles:
+            assert isinstance(profile.id, int)
+            assert isinstance(profile.name, str)
+
+            # Settings
+            if profile.settings:
+                settings_list = (
+                    profile.settings
+                    if isinstance(profile.settings, list)
+                    else [profile.settings]
+                )
+                for setting in settings_list:
+                    assert setting.max_charging_current is None or isinstance(
+                        setting.max_charging_current, (MaxChargeCurrentAcState, str)
+                    )
+                    assert setting.target_state_of_charge_in_percent is None or isinstance(
+                        setting.target_state_of_charge_in_percent, int
+                    )
+                    assert setting.auto_unlock_plug_when_charged is None or isinstance(
+                        setting.auto_unlock_plug_when_charged, (AutoUnlockPlugState, str)
+                    )
+
+                    if setting.min_battery_state_of_charge is not None:
+                        assert setting.min_battery_state_of_charge.enabled is None or isinstance(
+                            setting.min_battery_state_of_charge.enabled, bool
+                        )
+                        assert (
+                            setting.min_battery_state_of_charge.minimum_battery_state_of_charge_in_percent
+                            is None
+                            or isinstance(
+                                setting.min_battery_state_of_charge.minimum_battery_state_of_charge_in_percent,
+                                int,
+                            )
+                        )
+
+            # Preferred Charging Times
+            if profile.preferredChargingTimes:
+                for time in profile.preferredChargingTimes:
+                    assert isinstance(time.id, int)
+                    assert isinstance(time.enabled, bool)
+                    assert isinstance(time.start_time, str)
+                    assert isinstance(time.end_time, str)
+
+            # Timers
+            if profile.timers:
+                for timer in profile.timers:
+                    assert isinstance(timer.id, int)
+                    assert isinstance(timer.enabled, bool)
+                    assert isinstance(timer.type, str)
+                    assert timer.time is None or isinstance(timer.time, str)
+                    assert timer.one_off_day is None or isinstance(timer.one_off_day, str)
+                    assert timer.recurring_on is None or isinstance(timer.recurring_on, list)

@@ -10,8 +10,9 @@ from .parking_position import ParkingPosition
 from .auxiliary_heating import AuxiliaryHeating
 from .active_ventilation import ActiveVentilation
 from .charging import Charging
-from .driving_range import DrivingRange
+from .driving_range import FuelStatus
 from .air_conditioning import AirConditioning
+from .charging_profiles import ChargingProfiles
 
 class Odometer(BaseModel):
     """Odometer of the vehicle."""
@@ -30,8 +31,9 @@ class VehicleObject(BaseModel):
     auxiliary_heating: Optional[AuxiliaryHeating] = None
     active_ventilation: Optional[ActiveVentilation] = None
     air_conditioning: Optional[AirConditioning] = None
-    driving_range: Optional[DrivingRange] = None
+    fuel_status: Optional[FuelStatus] = None
     charging: Optional[Charging] = None
+    charging_profiles: Optional[ChargingProfiles] = None
 
 class VehicleResponse(BaseModel):
     """Response object for vehicle data."""

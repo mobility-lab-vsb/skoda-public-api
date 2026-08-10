@@ -12,6 +12,8 @@ from ..models.parking_position import ParkingPosition
 from ..models.auxiliary_heating import AuxiliaryHeating
 from ..models.charging import Charging
 from ..models.active_ventilation import ActiveVentilation
+from ..models.charging_profiles import ChargingProfiles
+from ..models.driving_range import FuelStatus
 from .exceptions import (
     OpenApiError,
     OpenApiAuthenticationError,
@@ -193,6 +195,30 @@ class SkodaRestAPI:
         full_response = VehicleResponse.model_validate(raw_json)
         status_model = full_response.vehicle.active_ventilation
         
+        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
+
+    async def get_charging_profiles(self, vin: str) -> GetEndpointResult[Optional[ChargingProfiles]]:
+        """Retrieve ONLY the vehicle charging profiles object by filtering via the 'include' parameter."""
+        url = f"/api/v1/vehicles/{vin}"        
+        params = {"include": "chargingProfiles"}
+    
+        raw_json = await self._make_get_request(url, params=params)
+    
+        full_response = VehicleResponse.model_validate(raw_json)
+        status_model = full_response.vehicle.charging_profiles
+            
+        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
+
+    async def get_fuel_status(self, vin: str) -> GetEndpointResult[Optional[FuelStatus]]:
+        """Retrieve ONLY the vehicle fuel status object by filtering via the 'include' parameter."""
+        url = f"/api/v1/vehicles/{vin}"        
+        params = {"include": "fuelStatus"}
+        
+        raw_json = await self._make_get_request(url, params=params)
+        
+        full_response = VehicleResponse.model_validate(raw_json)
+        status_model = full_response.vehicle.fuel_status
+                
         return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
     
     # =========================================================================

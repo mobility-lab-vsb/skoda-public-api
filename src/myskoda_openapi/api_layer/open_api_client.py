@@ -9,6 +9,8 @@ from ..models.air_conditioning import AirConditioning
 from ..models.parking_position import ParkingPosition
 from ..models.auxiliary_heating import AuxiliaryHeating
 from ..models.charging import Charging
+from ..models.driving_range import FuelStatus
+from ..models.charging_profiles import ChargingProfiles
 
 class OpenAPIClient:
     """Client for interacting with rest API and used in HomeAssistant."""
@@ -52,9 +54,21 @@ class OpenAPIClient:
         return endpoint_result.result
     
     async def get_active_ventilation(self, vin: str) -> ActiveVentilation:
-        """Get the actual vehicle status and return the parsed Pydantic model."""
+        """Get the actual active ventilation and return the parsed Pydantic model."""
         endpoint_result = await self.rest_api.get_active_ventilation(vin)
         return endpoint_result.result
+
+    async def get_fuel_status(self, vin: str) -> FuelStatus:
+        """Get the actual fuel status and return the parsed Pydantic model."""
+        endpoint_result = await self.rest_api.get_fuel_status(vin)
+        return endpoint_result.result
+
+    async def get_charging_profiles(self, vin: str) -> ChargingProfiles:
+        """Get the actual charging profiles and return the parsed Pydantic model."""
+        endpoint_result = await self.rest_api.get_charging_profiles(vin)
+        return endpoint_result.result
+    
+
     
     async def start_air_conditioning(self, vin: str, temperature: float) -> None:
         """Starts the air conditioning for the vehicle with the given VIN."""

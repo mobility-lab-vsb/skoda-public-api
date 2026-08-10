@@ -11,7 +11,7 @@ class EngineRange(BaseModel):
     remaining_range_in_km: Optional[int] = None
 
 
-class DrivingRange(BaseModel):
+class FuelStatus(BaseModel):
     """Details of the vehicle's fuel status and driving range."""
     car_type: Optional[str] = None
     ad_blue_range: Optional[int] = None
