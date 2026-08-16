@@ -3,7 +3,7 @@ import logging
 from typing import Generic, Optional, TypeVar, Any, List
 from dataclasses import dataclass
 from aiohttp import ClientResponseError, ClientSession
-from .const import SANDBOX_BASE_URL, PRODUCTION_BASE_URL, TEST_BASE_URL
+from .const import SANDBOX_BASE_URL, PRODUCTION_BASE_URL, TEST_BASE_URL, BETA_URL
 from ..models.vehicle import VehicleResponse
 from ..models.vehicle_status import VehicleStatus
 from ..models.vehicle import Odometer
@@ -46,7 +46,7 @@ class SkodaRestAPI:
     def __init__(self, api_key: str, session: ClientSession) -> None:
         self._api_key = api_key
         self._session = session
-        self._base_url = TEST_BASE_URL  # Default to TEST_BASE_URL; can be changed to SANDBOX_BASE_URL or PRODUCTION_BASE_URL as needed.
+        self._base_url = BETA_URL  # Default to BETA_URL; can be changed to SANDBOX_BASE_URL or PRODUCTION_BASE_URL as needed.
         #TODO will be exteded with methods for authorization, token management, and other endpoints as needed.
 
     async def _make_post_request(self, url: str, json_data: Optional[dict] = None) -> int:
