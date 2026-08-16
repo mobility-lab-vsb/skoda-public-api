@@ -11,7 +11,6 @@ class WindowHeating(BaseModel):
     front: Optional[OnOffState] = None
     rear: Optional[OnOffState] = None
 
-
 class AirConditioning(BaseModel):
     """Information about the vehicle's air conditioning."""
     state: AirConditioningState

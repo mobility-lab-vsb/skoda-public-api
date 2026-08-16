@@ -6,6 +6,7 @@ from .enums import (
     AuxiliaryHeatingStartMode,
 )
 
+
 class AuxiliaryHeating(BaseModel):
     """Auxiliary heating status."""
     state: AuxiliaryHeatingState

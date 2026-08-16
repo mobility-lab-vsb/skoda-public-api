@@ -14,6 +14,7 @@ from ..models.charging import Charging
 from ..models.active_ventilation import ActiveVentilation
 from ..models.charging_profiles import ChargingProfiles
 from ..models.driving_range import FuelStatus
+from ..models.configurations import StartAirConditioningConfiguration, StartAuxiliaryHeatingConfiguration
 from .exceptions import (
     OpenApiError,
     OpenApiAuthenticationError,
@@ -224,10 +225,11 @@ class SkodaRestAPI:
     # =========================================================================
     # ENDPOINT METHODS - POST
     # =========================================================================
-    async def start_air_conditioning(self, vin: str, payload: dict) -> PostEndpointResult:
+    async def start_air_conditioning(self, vin: str, config: StartAirConditioningConfiguration) -> PostEndpointResult:
         """Starts the air conditioning for the vehicle with the given VIN. The payload should contain any necessary parameters for starting the air conditioning."""
         url = f"/api/v1/vehicles/{vin}/air-conditioning/start"
         
+        payload = config.model_dump(by_alias=True, exclude_none=True)
         status = await self._make_post_request(url, json_data=payload)
         return PostEndpointResult(url=url, status=status, headers={})
     
@@ -238,10 +240,11 @@ class SkodaRestAPI:
         status = await self._make_post_request(url)
         return PostEndpointResult(url=url, status=status, headers={})
     
-    async def start_auxiliary_heating(self, vin: str, payload: dict) -> PostEndpointResult:
+    async def start_auxiliary_heating(self, vin: str, config: StartAuxiliaryHeatingConfiguration) -> PostEndpointResult:
         """Starts the auxiliary heating for the vehicle with the given VIN. The payload should contain any necessary parameters for starting the auxiliary heating."""
         url = f"/api/v1/vehicles/{vin}/auxiliary-heating/start"
         
+        payload = config.model_dump(by_alias=True, exclude_none=True)
         status = await self._make_post_request(url, json_data=payload)
         return PostEndpointResult(url=url, status=status, headers={})
     

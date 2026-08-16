@@ -11,6 +11,7 @@ from ..models.auxiliary_heating import AuxiliaryHeating
 from ..models.charging import Charging
 from ..models.driving_range import FuelStatus
 from ..models.charging_profiles import ChargingProfiles
+from ..models.configurations import StartAirConditioningConfiguration, StartAuxiliaryHeatingConfiguration, ConfigurationTargetTemperature
 
 class OpenAPIClient:
     """Client for interacting with rest API and used in HomeAssistant."""
@@ -70,10 +71,16 @@ class OpenAPIClient:
     
 
     
-    async def start_air_conditioning(self, vin: str, temperature: float) -> None:
+    async def start_air_conditioning(self, vin: str, temperature: float, unit: str = "CELSIUS", without_external_power: bool = True) -> None:
         """Starts the air conditioning for the vehicle with the given VIN."""
-        payload = {"targetTemperature": temperature}
-        await self.rest_api.start_air_conditioning(vin, payload=payload)
+        config = StartAirConditioningConfiguration(
+            target_temperature=ConfigurationTargetTemperature(
+                temperature_value=temperature,
+                unit_in_car=unit,
+            ),
+            air_conditioning_without_external_power=without_external_power,
+        )
+        await self.rest_api.start_air_conditioning(vin, config)
     
     async def stop_air_conditioning(self, vin: str) -> None:
         """Stops the air_conditioning of the vehicle and return None if it was succesfull else catch an exception in HomeAssistant"""
@@ -81,19 +88,20 @@ class OpenAPIClient:
 
     async def start_auxiliary_heating(self, vin: str, spin: str, duration_in_seconds: int = 120, start_mode: str = "HEATING", target_temperature: Optional[float] = None, unit: str = "CELSIUS") -> None:
         """Starts the auxiliary heating for the vehicle with the given VIN."""
-        payload = {
-            "spin": spin,
-            "durationInSeconds": duration_in_seconds,
-            "startMode": start_mode
-        }
-        # If there is target temperature, add it into the payload
+        temp_obj = None
         if target_temperature is not None:
-            payload["targetTemperature"] = {
-                "value": target_temperature,
-                "unit": unit
-            }
-            
-        await self.rest_api.start_auxiliary_heating(vin, payload=payload)
+            temp_obj = ConfigurationTargetTemperature(
+                temperature_value=target_temperature,
+                unit_in_car=unit,
+            )
+
+        config = StartAuxiliaryHeatingConfiguration(
+            spin=spin,
+            duration_in_seconds=duration_in_seconds,
+            start_mode=start_mode,
+            target_temperature=temp_obj,
+        )
+        await self.rest_api.start_auxiliary_heating(vin, config)
 
     async def stop_auxiliary_heating(self, vin: str) -> None:
         """Stops the auxiliary_heating of the vehicle and return None if it was succesfull else catch an exception in HomeAssistant"""
