@@ -25,6 +25,10 @@ class OpenApiVehicleNotFoundError(OpenApiError):
     def __init__(self, message: str = "Vehicle with this VIN does not exist.") -> None:
         super().__init__(message, status_code=404)
 
+class OpenApiUnsupportedError(OpenApiError):
+    """Error 422 - Unsupported operation."""
+    def __init__(self, message: str = "Vehicle does not support this operation") -> None:
+        super().__init__(message, status_code=422)
 
 class OpenApiRateLimitError(OpenApiError):
     """Error 429 - Rate limit exceeded or weak 12V battery."""
@@ -32,6 +36,6 @@ class OpenApiRateLimitError(OpenApiError):
         super().__init__(message, status_code=429)
 
 class OpenApiServerError(OpenApiError):
-    """Error 500 / 504 - Server error or timeout."""
+    """Error 500 - Server error or timeout."""
     def __init__(self, message: str, status_code: int = 500) -> None:
         super().__init__(message, status_code=status_code)

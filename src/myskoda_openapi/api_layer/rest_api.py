@@ -18,9 +18,11 @@ from ..models.configurations import StartAirConditioningConfiguration, StartAuxi
 from .exceptions import (
     OpenApiError,
     OpenApiAuthenticationError,
+    OpenApiUnsupportedError,
     OpenApiForbiddenError,
     OpenApiVehicleNotFoundError,
     OpenApiRateLimitError,
+    OpenApiServerError
 )
 
 T = TypeVar("T")
@@ -66,8 +68,12 @@ class SkodaRestAPI:
                         case 401: raise OpenApiAuthenticationError("Invalid or expired X-API-Key.")
                         case 403: raise OpenApiForbiddenError("Access forbidden. User not allowed to execute operation.")
                         case 404: raise OpenApiVehicleNotFoundError("Vehicle with this VIN does not exist.")
+                        case 422: raise OpenApiUnsupportedError("Vehicle does not support this operation")
                         case 429: raise OpenApiRateLimitError("Rate limit exceeded or insufficient battery level.")
                         case 400: raise OpenApiError("Bad request (e.g. validation or VIN issues).")
+                        case 500: raise OpenApiServerError("An unexpected error occurred while processing the request.", 500)
+                        case 503: raise OpenApiServerError("API key validation is temporarily unavailable. Retry after 10 seconds.", 503)
+                        case 504: raise OpenApiServerError("The vehicle did not respond in time.", 504)
                 
                 return response.status
         except Exception as err:
@@ -87,10 +93,15 @@ class SkodaRestAPI:
             async with self._session.get(full_url, headers=headers, params=params) as response:
                 if response.status not in (200, 202):
                     match response.status:
-                        case 401: raise OpenApiAuthenticationError("Invalid or expired X-API-Key.") 
-                        case 403: raise OpenApiForbiddenError("Access to the requested resource is forbidden.") 
-                        case 404: raise OpenApiVehicleNotFoundError("Vehicle with this VIN does not exist.") 
-                        case 429: raise OpenApiRateLimitError("Rate limit exceeded or weak 12V battery.") 
+                        case 401: raise OpenApiAuthenticationError("Invalid or expired X-API-Key.")
+                        case 403: raise OpenApiForbiddenError("Access forbidden. User not allowed to execute operation.")
+                        case 404: raise OpenApiVehicleNotFoundError("Vehicle with this VIN does not exist.")
+                        case 422: raise OpenApiUnsupportedError("Vehicle does not support this operation")
+                        case 429: raise OpenApiRateLimitError("Rate limit exceeded or insufficient battery level.")
+                        case 400: raise OpenApiError("Bad request (e.g. validation or VIN issues).")
+                        case 500: raise OpenApiServerError("An unexpected error occurred while processing the request.", 500)
+                        case 503: raise OpenApiServerError("API key validation is temporarily unavailable. Retry after 10 seconds.", 503)
+                        case 504: raise OpenApiServerError("The vehicle did not respond in time.", 504)
                 return await response.json()
         except Exception as err:
             raise OpenApiError(f"There has been an error when trying to make the request: {err}") from err
