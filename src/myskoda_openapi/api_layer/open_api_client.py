@@ -1,7 +1,7 @@
 import logging
 from typing import Any, Optional, List
 from aiohttp import ClientSession
-from .rest_api import SkodaRestAPI
+from .rest_api import PostEndpointResult, SkodaRestAPI
 from ..models.vehicle import VehicleResponse, Odometer
 from ..models.vehicle_status import VehicleStatus
 from ..models.active_ventilation import ActiveVentilation
@@ -71,7 +71,7 @@ class OpenAPIClient:
     
 
     
-    async def start_air_conditioning(self, vin: str, temperature: float, unit: str = "CELSIUS", without_external_power: bool = True) -> None:
+    async def start_air_conditioning(self, vin: str, temperature: float, unit: str = "CELSIUS", without_external_power: bool = True) -> PostEndpointResult:
         """Starts the air conditioning for the vehicle with the given VIN."""
         config = StartAirConditioningConfiguration(
             target_temperature=ConfigurationTargetTemperature(
@@ -80,13 +80,13 @@ class OpenAPIClient:
             ),
             air_conditioning_without_external_power=without_external_power,
         )
-        await self.rest_api.start_air_conditioning(vin, config)
+        return await self.rest_api.start_air_conditioning(vin, config)
     
-    async def stop_air_conditioning(self, vin: str) -> None:
+    async def stop_air_conditioning(self, vin: str) -> PostEndpointResult:
         """Stops the air_conditioning of the vehicle and return None if it was succesfull else catch an exception in HomeAssistant"""
-        await self.rest_api.stop_air_conditioning(vin)
+        return await self.rest_api.stop_air_conditioning(vin)
 
-    async def start_auxiliary_heating(self, vin: str, spin: str, duration_in_seconds: int = 120, start_mode: str = "HEATING", target_temperature: Optional[float] = None, unit: str = "CELSIUS") -> None:
+    async def start_auxiliary_heating(self, vin: str, spin: str, duration_in_seconds: int = 120, start_mode: str = "HEATING", target_temperature: Optional[float] = None, unit: str = "CELSIUS") -> PostEndpointResult:
         """Starts the auxiliary heating for the vehicle with the given VIN."""
         temp_obj = None
         if target_temperature is not None:
@@ -101,27 +101,27 @@ class OpenAPIClient:
             start_mode=start_mode,
             target_temperature=temp_obj,
         )
-        await self.rest_api.start_auxiliary_heating(vin, config)
+        return await self.rest_api.start_auxiliary_heating(vin, config)
 
-    async def stop_auxiliary_heating(self, vin: str) -> None:
+    async def stop_auxiliary_heating(self, vin: str) -> PostEndpointResult:
         """Stops the auxiliary_heating of the vehicle and return None if it was succesfull else catch an exception in HomeAssistant"""
-        await self.rest_api.stop_auxiliary_heating(vin)
+        return await self.rest_api.stop_auxiliary_heating(vin)
     
-    async def start_active_ventilation(self, vin: str) -> None:
+    async def start_active_ventilation(self, vin: str) -> PostEndpointResult:
         """Starts the active_ventilation for the vehicle with the given VIN."""
-        await self.rest_api.start_active_ventilation(vin)
+        return await self.rest_api.start_active_ventilation(vin)
 
-    async def stop_active_ventilation(self, vin: str) -> None:
+    async def stop_active_ventilation(self, vin: str) -> PostEndpointResult:
         """Stops the active_ventilation of the vehicle and return None if it was succesfull else catch an exception in HomeAssistant"""
-        await self.rest_api.stop_active_ventilation(vin)
+        return await self.rest_api.stop_active_ventilation(vin)
 
-    async def start_charging(self, vin: str) -> None:
+    async def start_charging(self, vin: str) -> PostEndpointResult:
         """Starts the charging process for the vehicle with the given VIN."""
-        await self.rest_api.start_charging(vin)
+        return await self.rest_api.start_charging(vin)
 
-    async def stop_charging(self, vin: str) -> None:
+    async def stop_charging(self, vin: str) -> PostEndpointResult:
         """Stops the charging process for the vehicle with the given VIN."""
-        await self.rest_api.stop_charging(vin)
+        return await self.rest_api.stop_charging(vin)
 
     async def connect(self):
         """TODO: Implementation of connect mechanism."""
