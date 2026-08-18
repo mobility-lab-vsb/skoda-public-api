@@ -266,11 +266,11 @@ class SkodaRestAPI:
         status = await self._make_post_request(url)
         return PostEndpointResult(url=url, status=status, headers={})
     
-    async def start_active_ventilation(self, vin: str, payload: dict) -> PostEndpointResult:
+    async def start_active_ventilation(self, vin: str) -> PostEndpointResult:
         """Starts the active ventilation for the vehicle with the given VIN. The payload should contain any necessary parameters for starting the active ventilation."""
         url = f"/api/v1/vehicles/{vin}/active-ventilation/start"
         
-        status = await self._make_post_request(url, json_data=payload)
+        status = await self._make_post_request(url)
         return PostEndpointResult(url=url, status=status, headers={})
     
     async def stop_active_ventilation(self, vin: str) -> PostEndpointResult:
