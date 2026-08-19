@@ -1,6 +1,7 @@
 import logging
 from typing import Any, Optional, List
 from aiohttp import ClientSession
+from .const import BETA_URL
 from .rest_api import PostEndpointResult, SkodaRestAPI
 from ..models.vehicle import VehicleResponse, Odometer
 from ..models.vehicle_status import VehicleStatus
@@ -16,8 +17,8 @@ from ..models.configurations import StartAirConditioningConfiguration, StartAuxi
 class OpenAPIClient:
     """Client for interacting with rest API and used in HomeAssistant."""
 
-    def __init__(self, api_key: str, session: ClientSession) -> None:
-       self.rest_api = SkodaRestAPI(api_key=api_key, session=session)
+    def __init__(self, api_key: str, session: ClientSession, base_url: str = BETA_URL) -> None:
+       self.rest_api = SkodaRestAPI(api_key=api_key, session=session, base_url=base_url)
 
     async def get_vehicle(self, vin: str, include: Optional[List[str]] = None) -> VehicleResponse:
         """Get the actual vehicle data and return the parsed Pydantic model."""
