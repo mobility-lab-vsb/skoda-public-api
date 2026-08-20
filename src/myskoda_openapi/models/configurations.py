@@ -6,9 +6,6 @@ class ConfigurationTargetTemperature(BaseModel):
     temperature_value: float = Field(..., alias="temperatureValue")
     unit_in_car: str = Field("CELSIUS", alias="unitInCar")
 
-    class Config:
-        populate_by_name = True
-
 
 class StartAirConditioningConfiguration(BaseModel):
     """Configuration for starting air conditioning."""
@@ -19,9 +16,6 @@ class StartAirConditioningConfiguration(BaseModel):
         True, alias="airConditioningWithoutExternalPower"
     )
 
-    class Config:
-        populate_by_name = True
-
 
 class StartAuxiliaryHeatingConfiguration(BaseModel):
     """Configuration for starting auxiliary heating."""
@@ -29,6 +23,3 @@ class StartAuxiliaryHeatingConfiguration(BaseModel):
     duration_in_seconds: Optional[int] = Field(120, alias="durationInSeconds")
     start_mode: Optional[str] = Field("HEATING", alias="startMode")
     target_temperature: Optional[ConfigurationTargetTemperature] = Field(None, alias="targetTemperature")
-
-    class Config:
-        populate_by_name = True
