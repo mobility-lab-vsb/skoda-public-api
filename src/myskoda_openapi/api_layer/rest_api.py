@@ -46,10 +46,10 @@ class PostEndpointResult:
 class SkodaRestAPI:
     """Rest API client for interacting with the Škoda Open API."""
 
-    def __init__(self, api_key: str, session: ClientSession) -> None:
+    def __init__(self, api_key: str, session: ClientSession, base_url: str = BETA_URL) -> None:
         self._api_key = api_key
         self._session = session
-        self._base_url = BETA_URL  # Default to BETA_URL; can be changed to SANDBOX_BASE_URL or PRODUCTION_BASE_URL as needed.
+        self._base_url = base_url  # Default to BETA_URL; can be changed to SANDBOX_BASE_URL or PRODUCTION_BASE_URL as needed.
         #TODO will be exteded with methods for authorization, token management, and other endpoints as needed.
 
     async def _make_post_request(self, url: str, json_data: Optional[dict] = None) -> int:
