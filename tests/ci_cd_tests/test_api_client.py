@@ -392,8 +392,8 @@ async def test_get_charging_profiles_endpoint():
                         )
 
             # Preferred Charging Times
-            if profile.preferredChargingTimes:
-                for time in profile.preferredChargingTimes:
+            if profile.preferred_charging_times:
+                for time in profile.preferred_charging_times:
                     assert isinstance(time.id, int)
                     assert isinstance(time.enabled, bool)
                     assert isinstance(time.start_time, str)
