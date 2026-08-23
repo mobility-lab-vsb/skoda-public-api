@@ -35,7 +35,7 @@ class ChargingProfile(BaseModel):
     id: int
     name: str
     settings: ChargingProfileSettings
-    preferredChargingTimes: List[ChargingTime]
+    preferred_charging_times: List[ChargingTime]
     timers: List[Timer]
 
 
