@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "myvsb-developer-api"
-version = "1.0.9"
+version = "1.0.10"
 authors = [
   { name="net0045", email="stepan.netolicky@vsb.cz" },
 ]
