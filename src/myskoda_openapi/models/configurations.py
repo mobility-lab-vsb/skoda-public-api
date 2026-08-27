@@ -3,19 +3,17 @@ from pydantic import Field
 from .base_model import BaseModel
 
 class ConfigurationTargetTemperature(BaseModel):
-    temperature_value: float = Field(..., alias="temperatureValue")
-    unit_in_car: str = Field("CELSIUS", alias="unitInCar")
+    value: float = Field(..., alias="value")
+    unit: str = Field("CELSIUS", alias="unit")
 
 
 class StartAirConditioningConfiguration(BaseModel):
     """Configuration for starting air conditioning."""
     target_temperature: Optional[ConfigurationTargetTemperature] = Field(None, alias="targetTemperature")
-    spin: Optional[str] = Field(None, alias="spin")
     heater_source: Optional[str] = Field(None, alias="heaterSource")
     air_conditioning_without_external_power: Optional[bool] = Field(
         True, alias="airConditioningWithoutExternalPower"
     )
-
 
 class StartAuxiliaryHeatingConfiguration(BaseModel):
     """Configuration for starting auxiliary heating."""

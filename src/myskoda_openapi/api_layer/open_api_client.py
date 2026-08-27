@@ -102,8 +102,8 @@ class OpenAPIClient:
         """Starts the air conditioning for the vehicle with the given VIN."""
         config = StartAirConditioningConfiguration(
             target_temperature=ConfigurationTargetTemperature(
-                temperature_value=temperature,
-                unit_in_car=unit,
+                value=temperature,
+                unit=unit,
             ),
             air_conditioning_without_external_power=without_external_power,
         )
@@ -118,8 +118,8 @@ class OpenAPIClient:
         temp_obj = None
         if target_temperature is not None:
             temp_obj = ConfigurationTargetTemperature(
-                temperature_value=target_temperature,
-                unit_in_car=unit,
+                value=target_temperature,
+                unit=unit,
             )
 
         config = StartAuxiliaryHeatingConfiguration(
