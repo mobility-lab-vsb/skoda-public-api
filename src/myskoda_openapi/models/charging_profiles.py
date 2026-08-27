@@ -38,9 +38,16 @@ class ChargingProfile(BaseModel):
     preferred_charging_times: List[ChargingTime]
     timers: List[Timer]
 
+class CurrentVehiclePositionProfile(BaseModel):
+    """Returns information about actual profile, where vehicle is located."""
+    id: int
+    name: str
+    target_state_of_charge_in_percent: Optional[int] = None
+    next_charging_time: Optional[str] = None
+
 
 class ChargingProfiles(BaseModel):
     """Details of the vehicle's charging profiles."""
     profiles: List[ChargingProfile]
-    current_vehicle_position_profile: Optional[ChargingProfile] = None
+    current_vehicle_position_profile: Optional[CurrentVehiclePositionProfile] = None
     car_captured_timestamp: Optional[str] = None
