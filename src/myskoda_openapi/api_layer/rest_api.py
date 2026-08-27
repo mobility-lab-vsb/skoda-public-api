@@ -30,10 +30,11 @@ _LOGGER = logging.getLogger(__name__)
 
 class GetEndpointResult(Generic[T]):
     """Wrapper for the result of a GET request to an endpoint, containing the URL, raw JSON data, and the parsed Pydantic model."""
-    def __init__(self, url: str, raw_json: Any, result: T) -> None:
+    def __init__(self, url: str, raw_json: Any, result: T, headers: Optional[dict[str, Any]] = None) -> None:
         self.url = url
         self.raw_json = raw_json          
-        self.result = result    # Final Pydantic model after parsing raw Json.
+        self.result = result
+        self.headers = headers or {}
 
 class PostEndpointResult:
     """Wrapper for the result of a POST request to an endpoint, containing the URL, status code, and headers."""
@@ -81,8 +82,8 @@ class SkodaRestAPI:
                 raise
             raise OpenApiError(f"There has been an error when trying to make the POST request: {err}") from err
 
-    async def _make_get_request(self, url: str, params: Optional[dict] = None) -> Any:
-        """Helper method to make GET requests to the Škoda API."""
+    async def _make_get_request(self, url: str, params: Optional[dict] = None) -> tuple[Any, dict[str, Any]]:
+        """Helper method to make GET requests to the Škoda API returning JSON and headers."""
         full_url = f"{self._base_url}{url}"
         headers = {
             "X-API-Key": self._api_key,
@@ -102,8 +103,13 @@ class SkodaRestAPI:
                         case 500: raise OpenApiServerError("An unexpected error occurred while processing the request.", 500)
                         case 503: raise OpenApiServerError("API key validation is temporarily unavailable. Retry after 10 seconds.", 503)
                         case 504: raise OpenApiServerError("The vehicle did not respond in time.", 504)
-                return await response.json()
+                
+                json_data = await response.json()
+                headers_dict = {k.lower(): v for k, v in response.headers.items()}
+                return json_data, headers_dict
         except Exception as err:
+            if isinstance(err, OpenApiError):
+                raise
             raise OpenApiError(f"There has been an error when trying to make the request: {err}") from err
 
     # =========================================================================
@@ -116,13 +122,12 @@ class SkodaRestAPI:
         if include:
             params["include"] = ",".join(include)
 
-        raw_json = await self._make_get_request(url, params=params)
-        
+        raw_json, resp_headers = await self._make_get_request(url, params=params)
         # Deserializace raw_json into Pydantic model VehicleResponse
         full_response = VehicleResponse.model_validate(raw_json)
         
         # Pack and retunr the result in GetEndpointResult
-        return GetEndpointResult(url=url, raw_json=raw_json, result=full_response)
+        return GetEndpointResult(url=url, raw_json=raw_json, result=full_response, headers=resp_headers)
     
     async def get_vehicle_status(self, vin: str) -> GetEndpointResult[Optional[VehicleStatus]]:
         """Retrieve ONLY the vehicle status by filtering via the 'include' parameter."""
@@ -130,109 +135,109 @@ class SkodaRestAPI:
         # Set the 'include' parameter to 'status' to retrieve only the vehicle status
         params = {"include": "status"}
 
-        raw_json = await self._make_get_request(url, params=params)
+        raw_json, resp_headers = await self._make_get_request(url, params=params)
         # Parse whole response into VehicleResponse model
         full_response = VehicleResponse.model_validate(raw_json)
         status_model = full_response.vehicle.status
         
-        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
+        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model, headers=resp_headers)
     
     async def get_air_conditioning(self, vin: str) -> GetEndpointResult[Optional[AirConditioning]]:
         """Retrieve ONLY the vehicles air conditioning object by filtering via the 'include' parameter."""
         url = f"/api/v1/vehicles/{vin}"        
         params = {"include": "airConditioning"}
 
-        raw_json = await self._make_get_request(url, params=params)
+        raw_json, resp_headers = await self._make_get_request(url, params=params)
 
         full_response = VehicleResponse.model_validate(raw_json)
         status_model = full_response.vehicle.air_conditioning
         
-        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
+        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model, headers=resp_headers)
     
     async def get_parking_positions(self, vin: str) -> GetEndpointResult[Optional[ParkingPosition]]:
         """Retrieve ONLY the vehicle parking positions object by filtering via the 'include' parameter."""
         url = f"/api/v1/vehicles/{vin}"        
         params = {"include": "parkingPosition"}
 
-        raw_json = await self._make_get_request(url, params=params)
+        raw_json, resp_headers = await self._make_get_request(url, params=params)
 
         full_response = VehicleResponse.model_validate(raw_json)
         status_model = full_response.vehicle.parking_position
         
-        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
+        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model, headers=resp_headers)
     
     async def get_auxiliary_heating(self, vin: str) -> GetEndpointResult[Optional[AuxiliaryHeating]]:
         """Retrieve ONLY the vehicle auxiliary heating by filtering via the 'include' parameter."""
         url = f"/api/v1/vehicles/{vin}"        
         params = {"include": "auxiliaryHeating"}
 
-        raw_json = await self._make_get_request(url, params=params)
+        raw_json, resp_headers = await self._make_get_request(url, params=params)
 
         full_response = VehicleResponse.model_validate(raw_json)
         status_model = full_response.vehicle.auxiliary_heating
         
-        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
+        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model, headers=resp_headers)
 
     async def get_odometer(self, vin: str) -> GetEndpointResult[Optional[Odometer]]:
         """Retrieve ONLY the vehicle odometer object by filtering via the 'include' parameter."""
         url = f"/api/v1/vehicles/{vin}"        
         params = {"include": "odometer"}
 
-        raw_json = await self._make_get_request(url, params=params)
+        raw_json, resp_headers = await self._make_get_request(url, params=params)
 
         full_response = VehicleResponse.model_validate(raw_json)
         status_model = full_response.vehicle.odometer
         
-        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
+        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model, headers=resp_headers)
     
     async def get_charging(self, vin: str) -> GetEndpointResult[Optional[Charging]]:
         """Retrieve ONLY the vehicle charging object by filtering via the 'include' parameter."""
         url = f"/api/v1/vehicles/{vin}"        
         params = {"include": "charging"}
 
-        raw_json = await self._make_get_request(url, params=params)
+        raw_json, resp_headers = await self._make_get_request(url, params=params)
 
         full_response = VehicleResponse.model_validate(raw_json)
         status_model = full_response.vehicle.charging
         
-        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
+        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model, headers=resp_headers)
 
     async def get_active_ventilation(self, vin: str) -> GetEndpointResult[Optional[ActiveVentilation]]:
         """Retrieve ONLY the vehicle active ventilation object by filtering via the 'include' parameter."""
         url = f"/api/v1/vehicles/{vin}"        
         params = {"include": "activeVentilation"}
 
-        raw_json = await self._make_get_request(url, params=params)
+        raw_json, resp_headers = await self._make_get_request(url, params=params)
 
         full_response = VehicleResponse.model_validate(raw_json)
         status_model = full_response.vehicle.active_ventilation
         
-        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
+        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model, headers=resp_headers)
 
     async def get_charging_profiles(self, vin: str) -> GetEndpointResult[Optional[ChargingProfiles]]:
         """Retrieve ONLY the vehicle charging profiles object by filtering via the 'include' parameter."""
         url = f"/api/v1/vehicles/{vin}"        
         params = {"include": "chargingProfiles"}
     
-        raw_json = await self._make_get_request(url, params=params)
+        raw_json, resp_headers = await self._make_get_request(url, params=params)
     
         full_response = VehicleResponse.model_validate(raw_json)
         status_model = full_response.vehicle.charging_profiles
             
-        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
+        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model, headers=resp_headers)
 
     async def get_fuel_status(self, vin: str) -> GetEndpointResult[Optional[FuelStatus]]:
         """Retrieve ONLY the vehicle fuel status object by filtering via the 'include' parameter."""
         url = f"/api/v1/vehicles/{vin}"        
         params = {"include": "fuelStatus"}
         
-        raw_json = await self._make_get_request(url, params=params)
+        raw_json, resp_headers = await self._make_get_request(url, params=params)
         
         full_response = VehicleResponse.model_validate(raw_json)
         status_model = full_response.vehicle.fuel_status
                 
-        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model)
-    
+        return GetEndpointResult(url=url, raw_json=raw_json, result=status_model, headers=resp_headers)
+
     # =========================================================================
     # ENDPOINT METHODS - POST
     # =========================================================================

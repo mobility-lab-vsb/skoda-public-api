@@ -19,58 +19,84 @@ class OpenAPIClient:
 
     def __init__(self, api_key: str, session: ClientSession, base_url: str = BETA_URL) -> None:
        self.rest_api = SkodaRestAPI(api_key=api_key, session=session, base_url=base_url)
+       self.last_headers: dict[str, Any] = {}
+
+    @property
+    def api_key_expires_at(self) -> Optional[str]:
+        """Return the expiration timestamp of the API key."""
+        return self.last_headers.get("x-api-key-expires-at")
+
+    @property
+    def rate_limit_remaining(self) -> Optional[int]:
+        """Return remaining requests quota."""
+        val = self.last_headers.get("ratelimit-remaining")
+        return int(val) if val is not None else None
+
+    @property
+    def rate_limit_reset(self) -> Optional[int]:
+        """Return the time when the rate limit will be reset."""
+        val = self.last_headers.get("ratelimit-reset")
+        return int(val) if val is not None else None
 
     async def get_vehicle(self, vin: str, include: Optional[List[str]] = None) -> VehicleResponse:
         """Get the actual vehicle data and return the parsed Pydantic model."""
         endpoint_result = await self.rest_api.get_vehicle(vin, include=include)
+        self.last_headers = endpoint_result.headers
         return endpoint_result.result
     
-    async def get_vehicle_status(self, vin: str) -> VehicleStatus:
-        """Get the actual vehicle status and return the parsed Pydantic model."""
+    async def get_vehicle_status(self, vin: str) -> Optional[VehicleStatus]:
         endpoint_result = await self.rest_api.get_vehicle_status(vin)
+        self.last_headers = endpoint_result.headers
         return endpoint_result.result
     
     async def get_air_conditioning(self, vin: str) -> AirConditioning:
         """Get the actual vehicle status and return the parsed Pydantic model."""
         endpoint_result = await self.rest_api.get_air_conditioning(vin)
+        self.last_headers = endpoint_result.headers
         return endpoint_result.result
     
     async def get_parking_positions(self, vin: str) -> ParkingPosition:
         """Get the actual vehicle status and return the parsed Pydantic model."""
         endpoint_result = await self.rest_api.get_parking_positions(vin)
+        self.last_headers = endpoint_result.headers
         return endpoint_result.result
     
     async def get_auxiliary_heating(self, vin: str) -> AuxiliaryHeating:
         """Get the actual vehicle status and return the parsed Pydantic model."""
         endpoint_result = await self.rest_api.get_auxiliary_heating(vin)
+        self.last_headers = endpoint_result.headers
         return endpoint_result.result
     
     async def get_odometer(self, vin: str) -> Odometer:
         """Get the actual vehicle status and return the parsed Pydantic model."""
         endpoint_result = await self.rest_api.get_odometer(vin)
+        self.last_headers = endpoint_result.headers
         return endpoint_result.result
     
     async def get_charging(self, vin: str) -> Charging:
         """Get the actual vehicle status and return the parsed Pydantic model."""
         endpoint_result = await self.rest_api.get_charging(vin)
+        self.last_headers = endpoint_result.headers
         return endpoint_result.result
     
     async def get_active_ventilation(self, vin: str) -> ActiveVentilation:
         """Get the actual active ventilation and return the parsed Pydantic model."""
         endpoint_result = await self.rest_api.get_active_ventilation(vin)
+        self.last_headers = endpoint_result.headers
         return endpoint_result.result
 
     async def get_fuel_status(self, vin: str) -> FuelStatus:
         """Get the actual fuel status and return the parsed Pydantic model."""
         endpoint_result = await self.rest_api.get_fuel_status(vin)
+        self.last_headers = endpoint_result.headers
         return endpoint_result.result
 
     async def get_charging_profiles(self, vin: str) -> ChargingProfiles:
         """Get the actual charging profiles and return the parsed Pydantic model."""
         endpoint_result = await self.rest_api.get_charging_profiles(vin)
+        self.last_headers = endpoint_result.headers
         return endpoint_result.result
     
-
     
     async def start_air_conditioning(self, vin: str, temperature: float, unit: str = "CELSIUS", without_external_power: bool = True) -> PostEndpointResult:
         """Starts the air conditioning for the vehicle with the given VIN."""
