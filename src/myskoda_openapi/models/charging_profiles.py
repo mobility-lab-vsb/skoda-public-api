@@ -36,7 +36,7 @@ class ChargingProfile(BaseModel):
     name: str
     settings: ChargingProfileSettings
     preferred_charging_times: List[ChargingTime]
-    timers: List[Timer]
+    timers: Optional[List[Timer]] = None
 
 class CurrentVehiclePositionProfile(BaseModel):
     """Returns information about actual profile, where vehicle is located."""
