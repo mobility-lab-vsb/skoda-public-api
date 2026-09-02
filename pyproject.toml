@@ -7,9 +7,9 @@ name = "skoda-public-api"
 version = "1.1.0"
 authors = [
   { name = "Mobility Lab, VŠB-TUO" },
+  { name = "TomVSB", email = "tomas.mrovec@vsb.cz" },
   { name="net0045", email="stepan.netolicky@vsb.cz" },
   { name="mag0051", email="david.magyarics@vsb.cz" },
-  { name = "TomVSB", email = "tomas.mrovec@vsb.cz" },
 ]
 maintainers = [
   { name="mag0051", email="david.magyarics@vsb.cz" },
