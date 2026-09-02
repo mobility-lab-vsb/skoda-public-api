@@ -8,13 +8,13 @@ import pytest
 from asyncclick.testing import CliRunner
 from pydantic import ValidationError
 
-from myskoda_openapi.api_layer.exceptions import OpenApiAuthenticationError
-from myskoda_openapi.api_layer.open_api_client import OpenAPIClient
-from myskoda_openapi.api_layer.rest_api import PostEndpointResult
-from myskoda_openapi.cli import cli
-from myskoda_openapi.cli.operations import start_air_conditioning, start_auxiliary_heating
-from myskoda_openapi.cli.utils import print_json, print_yaml
-from myskoda_openapi.models.vehicle import Odometer
+from skoda_public_api.api_layer.exceptions import OpenApiAuthenticationError
+from skoda_public_api.api_layer.open_api_client import OpenAPIClient
+from skoda_public_api.api_layer.rest_api import PostEndpointResult
+from skoda_public_api.cli import cli
+from skoda_public_api.cli.operations import start_air_conditioning, start_auxiliary_heating
+from skoda_public_api.cli.utils import print_json, print_yaml
+from skoda_public_api.models.vehicle import Odometer
 
 VIN = "DMBGF9NY3NF032963"
 

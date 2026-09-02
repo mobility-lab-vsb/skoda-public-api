@@ -1,19 +1,19 @@
 import aiohttp
 import pytest
 
-from myskoda_openapi.api_layer.rest_api import SkodaRestAPI, GetEndpointResult
-from myskoda_openapi.api_layer.exceptions import OpenApiError
-from myskoda_openapi.api_layer.const import TEST_BASE_URL
-from myskoda_openapi.api_layer.exceptions import OpenApiAuthenticationError
-from myskoda_openapi.models.enums import DoorsState, MovementState, TemperatureUnit, YesNoState, OpenCloseState, OnOffState, LockState, AirConditioningState
-from myskoda_openapi.models.air_conditioning import AirConditioning 
-from myskoda_openapi.models.parking_position import ParkingPosition
-from myskoda_openapi.models.vehicle_status import VehicleStatus
-from myskoda_openapi.models.driving_range import FuelStatus
-from myskoda_openapi.models.charging_profiles import ChargingProfiles
-from myskoda_openapi.models.charging import Charging
-from myskoda_openapi.models.vehicle import Odometer
-from myskoda_openapi.models.enums import ChargingState, ChargeType, ChargeMode, ChargeCareModeState, AutoUnlockPlugState, MaxChargeCurrentAcState
+from skoda_public_api.api_layer.rest_api import SkodaRestAPI, GetEndpointResult
+from skoda_public_api.api_layer.exceptions import OpenApiError
+from skoda_public_api.api_layer.const import TEST_BASE_URL
+from skoda_public_api.api_layer.exceptions import OpenApiAuthenticationError
+from skoda_public_api.models.enums import DoorsState, MovementState, TemperatureUnit, YesNoState, OpenCloseState, OnOffState, LockState, AirConditioningState
+from skoda_public_api.models.air_conditioning import AirConditioning 
+from skoda_public_api.models.parking_position import ParkingPosition
+from skoda_public_api.models.vehicle_status import VehicleStatus
+from skoda_public_api.models.driving_range import FuelStatus
+from skoda_public_api.models.charging_profiles import ChargingProfiles
+from skoda_public_api.models.charging import Charging
+from skoda_public_api.models.vehicle import Odometer
+from skoda_public_api.models.enums import ChargingState, ChargeType, ChargeMode, ChargeCareModeState, AutoUnlockPlugState, MaxChargeCurrentAcState
 
 @pytest.mark.asyncio
 async def test_get_vehicle_test_endpoint():

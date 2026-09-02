@@ -1,6 +1,43 @@
-# vsb-developer-api
+# skoda-public-api
 
-VSB developer API is a Python library to interact with the new VSB API for connected-vehicle data and remote control of VSB vehicles.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](pyproject.toml)
+
+Asynchronous Python library for the Škoda public API, developed by [Mobility Lab @ VSB](https://github.com/mobility-lab-vsb) — Technical University of Ostrava. It provides typed access to connected-vehicle data (status, odometer, charging, climate, fuel, parking position) and remote vehicle control (climate, charging, ventilation) for Škoda vehicles.
+
+It is built on [`aiohttp`](https://docs.aiohttp.org/) and [`pydantic`](https://docs.pydantic.dev/), and ships both as a library and as a standalone CLI (`skodactl`).
+
+## Installation
+
+```sh
+pip install skoda-public-api
+```
+
+## As a library
+
+```python
+import asyncio
+
+from aiohttp import ClientSession
+
+from skoda_public_api.api_layer.open_api_client import OpenAPIClient
+
+
+async def main() -> None:
+    async with ClientSession() as session:
+        client = OpenAPIClient(api_key="XXX", session=session)
+
+        vehicle = await client.get_vehicle("DMBGF9NY3NF032963")
+        print(vehicle.vehicle.name)
+
+        charging = await client.get_charging("DMBGF9NY3NF032963")
+        print(charging.status.battery.state_of_charge_in_percent)
+
+
+asyncio.run(main())
+```
+
+Every response is a typed `pydantic` model — see [`src/skoda_public_api/models`](src/skoda_public_api/models) for the full data model, and [`src/skoda_public_api/api_layer/open_api_client.py`](src/skoda_public_api/api_layer/open_api_client.py) for the full list of available reads (vehicle status, odometer, charging, air conditioning, auxiliary heating, active ventilation, fuel status, parking position, charging profiles) and remote actions (start/stop charging, climate, auxiliary heating, active ventilation, window heating, charge limit, target temperature).
 
 ## As CLI
 
@@ -8,7 +45,7 @@ The library ships with a command line interface called `skodactl`, which is usef
 testing the API endpoints. Install it together with the CLI dependencies:
 
 ```sh
-pip install "myvsb-developer-api[cli]"
+pip install "skoda-public-api[cli]"
 ```
 
 You authenticate with your API key, either via the `--api-key` option or the `SKODA_API_KEY`
@@ -34,3 +71,16 @@ skodactl --api-key XXX start-air-conditioning DMBGF9NY3NF032963 --temperature 21
 ```
 
 Run `skodactl --help` for the full list of commands and options.
+
+## Development
+
+Clone the repository and install it in editable mode together with the test dependencies:
+
+```sh
+pip install -e ".[test,cli]"
+pytest
+```
+
+## License
+
+Distributed under the MIT License. See [`LICENSE`](LICENSE) for details.
