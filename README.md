@@ -7,7 +7,9 @@ Asynchronous Python library for the Škoda public API, developed by [Mobility La
 
 It is built on [`aiohttp`](https://docs.aiohttp.org/) and [`pydantic`](https://docs.pydantic.dev/), and ships both as a library and as a standalone CLI (`skodactl`).
 
-This version targets **API v1** of the [Škoda public API](https://public.api.connect.skoda-auto.cz/docs).
+This works with Škoda vehicles with a Škoda Connect account. Different models of vehicles result in different types of attributes provided by the server.
+
+This version targets **API v1.0.0** of the [Škoda public API](https://public.api.connect.skoda-auto.cz/docs).
 
 ## Installation
 
