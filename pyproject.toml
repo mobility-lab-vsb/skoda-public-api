@@ -4,16 +4,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "skoda-public-api"
-version = "1.0.12"
+version = "1.1.0"
 authors = [
   { name = "Mobility Lab, VŠB-TUO" },
   { name="net0045", email="stepan.netolicky@vsb.cz" },
   { name="mag0051", email="david.magyarics@vsb.cz" },
-  { name = "mro061", email = "tomas.mrovec@vsb.cz" },
+  { name = "TomVSB", email = "tomas.mrovec@vsb.cz" },
 ]
 maintainers = [
   { name="mag0051", email="david.magyarics@vsb.cz" },
-  { name = "mro061", email = "tomas.mrovec@vsb.cz" },
+  { name = "TomVSB", email = "tomas.mrovec@vsb.cz" },
 ]
 description = "Asynchronous Python library for the Škoda public API"
 readme = "README.md"
