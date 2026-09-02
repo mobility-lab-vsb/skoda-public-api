@@ -7,6 +7,8 @@ Asynchronous Python library for the Škoda public API, developed by [Mobility La
 
 It is built on [`aiohttp`](https://docs.aiohttp.org/) and [`pydantic`](https://docs.pydantic.dev/), and ships both as a library and as a standalone CLI (`skodactl`).
 
+This version targets **API v1** of the [Škoda public API](https://public.api.connect.skoda-auto.cz/docs).
+
 ## Installation
 
 ```sh
@@ -27,10 +29,10 @@ async def main() -> None:
     async with ClientSession() as session:
         client = OpenAPIClient(api_key="XXX", session=session)
 
-        vehicle = await client.get_vehicle("DMBGF9NY3NF032963")
+        vehicle = await client.get_vehicle("TMBJX7NY4PM054321")
         print(vehicle.vehicle.name)
 
-        charging = await client.get_charging("DMBGF9NY3NF032963")
+        charging = await client.get_charging("TMBJX7NY4PM054321")
         print(charging.status.battery.state_of_charge_in_percent)
 
 
@@ -52,7 +54,7 @@ You authenticate with your API key, either via the `--api-key` option or the `SK
 environment variable, and address a vehicle by its VIN:
 
 ```sh
-skodactl --api-key XXX get-vehicle DMBGF9NY3NF032963
+skodactl --api-key XXX get-vehicle TMBJX7NY4PM054321
 ```
 
 By default, the CLI talks to the production endpoint. Point it at the public test endpoint with
@@ -60,14 +62,14 @@ By default, the CLI talks to the production endpoint. Point it at the public tes
 with `--trace`:
 
 ```sh
-skodactl --api-key XXX --endpoint test get-vehicle-status DMBGF9NY3NF032963
-SKODA_API_KEY=XXX skodactl --format yaml --trace get-charging DMBGF9NY3NF032963
+skodactl --api-key XXX --endpoint test get-vehicle-status TMBJX7NY4PM054321
+SKODA_API_KEY=XXX skodactl --format yaml --trace get-charging TMBJX7NY4PM054321
 ```
 
 Remote operations can be started as well:
 
 ```sh
-skodactl --api-key XXX start-air-conditioning DMBGF9NY3NF032963 --temperature 21
+skodactl --api-key XXX start-air-conditioning TMBJX7NY4PM054321 --temperature 21
 ```
 
 Run `skodactl --help` for the full list of commands and options.
