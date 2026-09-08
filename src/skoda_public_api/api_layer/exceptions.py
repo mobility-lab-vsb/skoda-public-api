@@ -39,3 +39,8 @@ class OpenApiServerError(OpenApiError):
     """Error 500 - Server error or timeout."""
     def __init__(self, message: str, status_code: int = 500) -> None:
         super().__init__(message, status_code=status_code)
+
+class OpenApiTimeoutError(OpenApiError):
+    """The request did not complete before the client-side timeout elapsed."""
+    def __init__(self, message: str = "The request to the Škoda API timed out.") -> None:
+        super().__init__(message)
