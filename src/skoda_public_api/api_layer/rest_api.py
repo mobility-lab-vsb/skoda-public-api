@@ -22,7 +22,8 @@ from .exceptions import (
     OpenApiForbiddenError,
     OpenApiVehicleNotFoundError,
     OpenApiRateLimitError,
-    OpenApiServerError
+    OpenApiServerError,
+    OpenApiTimeoutError
 )
 
 T = TypeVar("T")
@@ -77,6 +78,8 @@ class SkodaRestAPI:
                         case 504: raise OpenApiServerError("The vehicle did not respond in time.", 504)
                 
                 return response.status
+        except TimeoutError as err:
+            raise OpenApiTimeoutError(f"Timed out while trying to make the POST request: {err}") from err
         except Exception as err:
             if isinstance(err, OpenApiError):
                 raise
@@ -107,6 +110,8 @@ class SkodaRestAPI:
                 json_data = await response.json()
                 headers_dict = {k.lower(): v for k, v in response.headers.items()}
                 return json_data, headers_dict
+        except TimeoutError as err:
+            raise OpenApiTimeoutError(f"Timed out while trying to make the request: {err}") from err
         except Exception as err:
             if isinstance(err, OpenApiError):
                 raise
