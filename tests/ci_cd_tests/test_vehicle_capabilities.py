@@ -85,7 +85,7 @@ def test_supported_capabilities_electric_vehicle_with_sunroof() -> None:
         VehicleCapability.CHARGING_PROFILES,
         VehicleCapability.AIR_CONDITIONING,
         VehicleCapability.FUEL_STATUS,
-        VehicleCapability.CT_ELECTRIC,
+        VehicleCapability.VEHICLE_TYPE_ELECTRIC,
     }
 
 
@@ -113,7 +113,7 @@ def test_diesel_vehicle_reports_car_type_and_ad_blue() -> None:
 
     assert caps == {
         VehicleCapability.FUEL_STATUS,
-        VehicleCapability.CT_DIESEL,
+        VehicleCapability.VEHICLE_TYPE_DIESEL,
         VehicleCapability.AD_BLUE_RANGE,
     }
 

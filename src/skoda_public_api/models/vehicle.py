@@ -32,12 +32,12 @@ _TRANSIENT_ERROR_PREFIXES: dict[VehicleCapability, str] = {
     VehicleCapability.FUEL_STATUS: "FUEL_STATUS",
 }
 
-_CAR_TYPE_CAPABILITIES: dict[str, VehicleCapability] = {
-    "HYBRID": VehicleCapability.CT_HYBRID,
-    "GASOLINE": VehicleCapability.CT_GASOLINE,
-    "DIESEL": VehicleCapability.CT_DIESEL,
-    "CNG": VehicleCapability.CT_CNG,
-    "LPG": VehicleCapability.CT_LPG,
+_VEHICLE_TYPE_CAPABILITIES: dict[str, VehicleCapability] = {
+    "HYBRID": VehicleCapability.VEHICLE_TYPE_HYBRID,
+    "GASOLINE": VehicleCapability.VEHICLE_TYPE_GASOLINE,
+    "DIESEL": VehicleCapability.VEHICLE_TYPE_DIESEL,
+    "CNG": VehicleCapability.VEHICLE_TYPE_CNG,
+    "LPG": VehicleCapability.VEHICLE_TYPE_LPG,
 }
 
 class Odometer(BaseModel):
@@ -135,9 +135,9 @@ class VehicleResponse(BaseModel):
                 if engine is not None
             }
             if "ELECTRIC" in engine_types:
-                caps.add(VehicleCapability.CT_ELECTRIC)
+                caps.add(VehicleCapability.VEHICLE_TYPE_ELECTRIC)
 
-            car_type_capability = _CAR_TYPE_CAPABILITIES.get(
+            car_type_capability = _VEHICLE_TYPE_CAPABILITIES.get(
                 (fuel_status.car_type or "").upper()
             )
             if car_type_capability is not None:
