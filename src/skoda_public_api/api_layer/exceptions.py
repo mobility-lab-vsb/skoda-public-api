@@ -44,3 +44,6 @@ class OpenApiTimeoutError(OpenApiError):
     """The request did not complete before the client-side timeout elapsed."""
     def __init__(self, message: str = "The request to the Škoda API timed out.") -> None:
         super().__init__(message)
+
+class OpenApiResponseValidationError(OpenApiError):
+    """The API response could not be parsed into the expected model."""

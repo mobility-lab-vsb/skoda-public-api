@@ -26,6 +26,7 @@ _TRANSIENT_ERROR_PREFIXES: dict[VehicleCapability, str] = {
     VehicleCapability.ODOMETER: "ODOMETER",
     VehicleCapability.PARKING_POSITION: "PARKING_POSITION",
     VehicleCapability.CHARGING: "CHARGING",
+    VehicleCapability.CHARGING_PROFILES: "CHARGING_PROFILES",
     VehicleCapability.AIR_CONDITIONING: "AIR_CONDITIONING",
     VehicleCapability.ACTIVE_VENTILATION: "ACTIVE_VENTILATION",
     VehicleCapability.AUXILIARY_HEATING: "AUXILIARY_HEATING",
@@ -102,7 +103,9 @@ class VehicleResponse(BaseModel):
             caps.add(VehicleCapability.PARKING_POSITION)
         if supported(VehicleCapability.CHARGING, vehicle.charging is not None):
             caps.add(VehicleCapability.CHARGING)
-        if vehicle.charging_profiles is not None:
+        if supported(
+            VehicleCapability.CHARGING_PROFILES, vehicle.charging_profiles is not None
+        ):
             caps.add(VehicleCapability.CHARGING_PROFILES)
         if supported(
             VehicleCapability.AIR_CONDITIONING, vehicle.air_conditioning is not None
