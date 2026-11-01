@@ -3,6 +3,7 @@ import logging
 from typing import Generic, Optional, TypeVar, Any, List
 from dataclasses import dataclass
 from aiohttp import ClientResponseError, ClientSession
+from pydantic import ValidationError
 from .const import SANDBOX_BASE_URL, PRODUCTION_BASE_URL, TEST_BASE_URL, BETA_URL
 from ..models.vehicle import VehicleResponse
 from ..models.vehicle_status import VehicleStatus
@@ -23,7 +24,8 @@ from .exceptions import (
     OpenApiVehicleNotFoundError,
     OpenApiRateLimitError,
     OpenApiServerError,
-    OpenApiTimeoutError
+    OpenApiTimeoutError,
+    OpenApiResponseValidationError,
 )
 
 T = TypeVar("T")
@@ -117,6 +119,16 @@ class SkodaRestAPI:
                 raise
             raise OpenApiError(f"There has been an error when trying to make the request: {err}") from err
 
+    @staticmethod
+    def _parse_vehicle_response(raw_json: Any) -> VehicleResponse:
+        """Parse a vehicle endpoint response, wrapping validation failures in an OpenApiError."""
+        try:
+            return VehicleResponse.model_validate(raw_json)
+        except ValidationError as err:
+            raise OpenApiResponseValidationError(
+                f"Unexpected response from the vehicle endpoint: {err}"
+            ) from err
+
     # =========================================================================
     # ENDPOINT METHODS - GET
     # =========================================================================
@@ -129,7 +141,7 @@ class SkodaRestAPI:
 
         raw_json, resp_headers = await self._make_get_request(url, params=params)
         # Deserializace raw_json into Pydantic model VehicleResponse
-        full_response = VehicleResponse.model_validate(raw_json)
+        full_response = self._parse_vehicle_response(raw_json)
         
         # Pack and retunr the result in GetEndpointResult
         return GetEndpointResult(url=url, raw_json=raw_json, result=full_response, headers=resp_headers)
@@ -142,7 +154,7 @@ class SkodaRestAPI:
 
         raw_json, resp_headers = await self._make_get_request(url, params=params)
         # Parse whole response into VehicleResponse model
-        full_response = VehicleResponse.model_validate(raw_json)
+        full_response = self._parse_vehicle_response(raw_json)
         status_model = full_response.vehicle.status
         
         return GetEndpointResult(url=url, raw_json=raw_json, result=status_model, headers=resp_headers)
@@ -154,7 +166,7 @@ class SkodaRestAPI:
 
         raw_json, resp_headers = await self._make_get_request(url, params=params)
 
-        full_response = VehicleResponse.model_validate(raw_json)
+        full_response = self._parse_vehicle_response(raw_json)
         status_model = full_response.vehicle.air_conditioning
         
         return GetEndpointResult(url=url, raw_json=raw_json, result=status_model, headers=resp_headers)
@@ -166,7 +178,7 @@ class SkodaRestAPI:
 
         raw_json, resp_headers = await self._make_get_request(url, params=params)
 
-        full_response = VehicleResponse.model_validate(raw_json)
+        full_response = self._parse_vehicle_response(raw_json)
         status_model = full_response.vehicle.parking_position
         
         return GetEndpointResult(url=url, raw_json=raw_json, result=status_model, headers=resp_headers)
@@ -178,7 +190,7 @@ class SkodaRestAPI:
 
         raw_json, resp_headers = await self._make_get_request(url, params=params)
 
-        full_response = VehicleResponse.model_validate(raw_json)
+        full_response = self._parse_vehicle_response(raw_json)
         status_model = full_response.vehicle.auxiliary_heating
         
         return GetEndpointResult(url=url, raw_json=raw_json, result=status_model, headers=resp_headers)
@@ -190,7 +202,7 @@ class SkodaRestAPI:
 
         raw_json, resp_headers = await self._make_get_request(url, params=params)
 
-        full_response = VehicleResponse.model_validate(raw_json)
+        full_response = self._parse_vehicle_response(raw_json)
         status_model = full_response.vehicle.odometer
         
         return GetEndpointResult(url=url, raw_json=raw_json, result=status_model, headers=resp_headers)
@@ -202,7 +214,7 @@ class SkodaRestAPI:
 
         raw_json, resp_headers = await self._make_get_request(url, params=params)
 
-        full_response = VehicleResponse.model_validate(raw_json)
+        full_response = self._parse_vehicle_response(raw_json)
         status_model = full_response.vehicle.charging
         
         return GetEndpointResult(url=url, raw_json=raw_json, result=status_model, headers=resp_headers)
@@ -214,7 +226,7 @@ class SkodaRestAPI:
 
         raw_json, resp_headers = await self._make_get_request(url, params=params)
 
-        full_response = VehicleResponse.model_validate(raw_json)
+        full_response = self._parse_vehicle_response(raw_json)
         status_model = full_response.vehicle.active_ventilation
         
         return GetEndpointResult(url=url, raw_json=raw_json, result=status_model, headers=resp_headers)
@@ -226,7 +238,7 @@ class SkodaRestAPI:
     
         raw_json, resp_headers = await self._make_get_request(url, params=params)
     
-        full_response = VehicleResponse.model_validate(raw_json)
+        full_response = self._parse_vehicle_response(raw_json)
         status_model = full_response.vehicle.charging_profiles
             
         return GetEndpointResult(url=url, raw_json=raw_json, result=status_model, headers=resp_headers)
@@ -238,7 +250,7 @@ class SkodaRestAPI:
         
         raw_json, resp_headers = await self._make_get_request(url, params=params)
         
-        full_response = VehicleResponse.model_validate(raw_json)
+        full_response = self._parse_vehicle_response(raw_json)
         status_model = full_response.vehicle.fuel_status
                 
         return GetEndpointResult(url=url, raw_json=raw_json, result=status_model, headers=resp_headers)
