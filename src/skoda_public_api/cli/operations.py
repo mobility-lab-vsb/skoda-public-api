@@ -167,7 +167,7 @@ async def stop_charging(ctx: Context, vin: str) -> None:
 
 @click.command()
 @click.argument("vin")
-@click.argument("limit", type=int)
+@click.argument("limit", type=click.IntRange(0, 100))
 @click.pass_context
 async def set_charge_limit(ctx: Context, vin: str, limit: int) -> None:
     """Set the charging limit in percent (typically 50 to 100 in steps of 10)."""

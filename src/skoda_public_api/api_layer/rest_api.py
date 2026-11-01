@@ -49,7 +49,7 @@ class PostEndpointResult:
 
 def _raise_for_status(status: int) -> None:
     """Raise the matching OpenApiError for an error status code returned by the API."""
-    if status in (200, 202):
+    if 200 <= status < 300:
         return
     match status:
         case 401: raise OpenApiAuthenticationError("Invalid or expired X-API-Key.")
@@ -61,6 +61,8 @@ def _raise_for_status(status: int) -> None:
         case 500: raise OpenApiServerError("An unexpected error occurred while processing the request.", 500)
         case 503: raise OpenApiServerError("API key validation is temporarily unavailable. Retry after 10 seconds.", 503)
         case 504: raise OpenApiServerError("The vehicle did not respond in time.", 504)
+        case _ if status >= 500: raise OpenApiServerError(f"Unexpected server error with status code {status}.", status)
+        case _: raise OpenApiError(f"Unexpected status code {status} returned by the API.", status)
 
 
 class SkodaRestAPI:
@@ -72,29 +74,8 @@ class SkodaRestAPI:
         self._base_url = base_url  # Default to BETA_URL; can be changed to SANDBOX_BASE_URL or PRODUCTION_BASE_URL as needed.
         #TODO will be exteded with methods for authorization, token management, and other endpoints as needed.
 
-    async def _make_post_request(self, url: str, json_data: Optional[dict] = None) -> int:
-        """Helper method to make POST requests to the Škoda API."""
-        full_url = f"{self._base_url}{url}"
-        headers = {
-            "X-API-Key": self._api_key,
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-        }
-        
-        try:
-            async with self._session.post(full_url, headers=headers, json=json_data) as response:
-                _raise_for_status(response.status)
-
-                return response.status
-        except TimeoutError as err:
-            raise OpenApiTimeoutError(f"Timed out while trying to make the POST request: {err}") from err
-        except Exception as err:
-            if isinstance(err, OpenApiError):
-                raise
-            raise OpenApiError(f"There has been an error when trying to make the POST request: {err}") from err
-
-    async def _make_put_request(self, url: str, json_data: Optional[dict] = None) -> int:
-        """Helper method to make PUT requests to the Škoda API."""
+    async def _make_command_request(self, method: str, url: str, json_data: Optional[dict] = None) -> int:
+        """Helper method to make POST or PUT requests to the Škoda API returning the status code."""
         full_url = f"{self._base_url}{url}"
         headers = {
             "X-API-Key": self._api_key,
@@ -103,16 +84,16 @@ class SkodaRestAPI:
         }
 
         try:
-            async with self._session.put(full_url, headers=headers, json=json_data) as response:
+            async with self._session.request(method, full_url, headers=headers, json=json_data) as response:
                 _raise_for_status(response.status)
 
                 return response.status
         except TimeoutError as err:
-            raise OpenApiTimeoutError(f"Timed out while trying to make the PUT request: {err}") from err
+            raise OpenApiTimeoutError(f"Timed out while trying to make the {method} request: {err}") from err
         except Exception as err:
             if isinstance(err, OpenApiError):
                 raise
-            raise OpenApiError(f"There has been an error when trying to make the PUT request: {err}") from err
+            raise OpenApiError(f"There has been an error when trying to make the {method} request: {err}") from err
 
     async def _make_get_request(self, url: str, params: Optional[dict] = None) -> tuple[Any, dict[str, Any]]:
         """Helper method to make GET requests to the Škoda API returning JSON and headers."""
@@ -280,14 +261,14 @@ class SkodaRestAPI:
         url = f"/api/v1/vehicles/{vin}/air-conditioning/start"
         
         payload = config.model_dump(by_alias=True, exclude_none=True)
-        status = await self._make_post_request(url, json_data=payload)
+        status = await self._make_command_request("POST", url, json_data=payload)
         return PostEndpointResult(url=url, status=status, headers={})
     
     async def stop_air_conditioning(self, vin: str) -> PostEndpointResult:
         """Stops the air_conditioning for the given VIN"""
         url = f"/api/v1/vehicles/{vin}/air-conditioning/stop"
         
-        status = await self._make_post_request(url)
+        status = await self._make_command_request("POST", url)
         return PostEndpointResult(url=url, status=status, headers={})
     
     async def start_auxiliary_heating(self, vin: str, config: StartAuxiliaryHeatingConfiguration) -> PostEndpointResult:
@@ -295,42 +276,42 @@ class SkodaRestAPI:
         url = f"/api/v1/vehicles/{vin}/auxiliary-heating/start"
         
         payload = config.model_dump(by_alias=True, exclude_none=True)
-        status = await self._make_post_request(url, json_data=payload)
+        status = await self._make_command_request("POST", url, json_data=payload)
         return PostEndpointResult(url=url, status=status, headers={})
     
     async def stop_auxiliary_heating(self, vin: str) -> PostEndpointResult:
         """Stops the auxiliary heating for the given VIN"""
         url = f"/api/v1/vehicles/{vin}/auxiliary-heating/stop"
         
-        status = await self._make_post_request(url)
+        status = await self._make_command_request("POST", url)
         return PostEndpointResult(url=url, status=status, headers={})
     
     async def start_active_ventilation(self, vin: str) -> PostEndpointResult:
         """Starts the active ventilation for the vehicle with the given VIN. The payload should contain any necessary parameters for starting the active ventilation."""
         url = f"/api/v1/vehicles/{vin}/active-ventilation/start"
         
-        status = await self._make_post_request(url)
+        status = await self._make_command_request("POST", url)
         return PostEndpointResult(url=url, status=status, headers={})
     
     async def stop_active_ventilation(self, vin: str) -> PostEndpointResult:
         """Stops the active ventilation for the given VIN"""
         url = f"/api/v1/vehicles/{vin}/active-ventilation/stop"
         
-        status = await self._make_post_request(url)
+        status = await self._make_command_request("POST", url)
         return PostEndpointResult(url=url, status=status, headers={})
     
     async def start_charging(self, vin: str) -> PostEndpointResult:
         """Starts the charging process for the vehicle with the given VIN."""
         url = f"/api/v1/vehicles/{vin}/charging/start"
         
-        status = await self._make_post_request(url)
+        status = await self._make_command_request("POST", url)
         return PostEndpointResult(url=url, status=status, headers={})
     
     async def stop_charging(self, vin: str) -> PostEndpointResult:
         """Stops the charging process for the given VIN"""
         url = f"/api/v1/vehicles/{vin}/charging/stop"
         
-        status = await self._make_post_request(url)
+        status = await self._make_command_request("POST", url)
         return PostEndpointResult(url=url, status=status, headers={})
     
     # =========================================================================
@@ -341,7 +322,7 @@ class SkodaRestAPI:
         url = f"/api/v1/vehicles/{vin}/charging/limit"
 
         payload = config.model_dump(by_alias=True)
-        status = await self._make_put_request(url, json_data=payload)
+        status = await self._make_command_request("PUT", url, json_data=payload)
         return PostEndpointResult(url=url, status=status, headers={})
 
     #TODO rest of the methods

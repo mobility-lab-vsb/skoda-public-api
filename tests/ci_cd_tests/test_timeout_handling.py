@@ -22,24 +22,24 @@ async def test_get_request_timeout_raises_open_api_timeout_error():
 async def test_post_request_timeout_raises_open_api_timeout_error():
     """A client-side timeout on a POST request must surface as OpenApiTimeoutError."""
     session = MagicMock()
-    session.post = MagicMock(side_effect=TimeoutError("timed out"))
+    session.request = MagicMock(side_effect=TimeoutError("timed out"))
 
     api = SkodaRestAPI(api_key="fake", session=session)
 
     with pytest.raises(OpenApiTimeoutError):
-        await api._make_post_request("/api/v1/vehicles/FAKEVIN/charging/start")
+        await api._make_command_request("POST", "/api/v1/vehicles/FAKEVIN/charging/start")
 
 
 @pytest.mark.asyncio
 async def test_put_request_timeout_raises_open_api_timeout_error():
     """A client-side timeout on a PUT request must surface as OpenApiTimeoutError."""
     session = MagicMock()
-    session.put = MagicMock(side_effect=TimeoutError("timed out"))
+    session.request = MagicMock(side_effect=TimeoutError("timed out"))
 
     api = SkodaRestAPI(api_key="fake", session=session)
 
     with pytest.raises(OpenApiTimeoutError):
-        await api._make_put_request("/api/v1/vehicles/FAKEVIN/charging/limit")
+        await api._make_command_request("PUT", "/api/v1/vehicles/FAKEVIN/charging/limit")
 
 
 @pytest.mark.asyncio

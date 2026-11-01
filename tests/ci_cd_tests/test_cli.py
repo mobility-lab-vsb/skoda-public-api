@@ -240,6 +240,19 @@ async def test_set_charge_limit() -> None:
 
 
 @pytest.mark.asyncio
+async def test_set_charge_limit_out_of_range() -> None:
+    mock = AsyncMock(spec=OpenAPIClient)
+    runner = CliRunner()
+    result = await runner.invoke(
+        cli.commands["set-charge-limit"],
+        [VIN, "150"],
+        obj={"client": mock, "print": print_json},
+    )
+    assert result.exit_code != 0
+    mock.set_charge_limit.assert_not_awaited()
+
+
+@pytest.mark.asyncio
 async def test_start_air_conditioning_with_options() -> None:
     mock = AsyncMock(spec=OpenAPIClient)
     mock.start_air_conditioning.return_value = PostEndpointResult(

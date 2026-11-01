@@ -5,9 +5,14 @@ from unittest.mock import AsyncMock, MagicMock
 import aiohttp
 import pytest
 from aiohttp import web
+from pydantic import ValidationError
 
 from skoda_public_api.api_layer.const import TEST_BASE_URL
-from skoda_public_api.api_layer.exceptions import OpenApiUnsupportedError
+from skoda_public_api.api_layer.exceptions import (
+    OpenApiError,
+    OpenApiServerError,
+    OpenApiUnsupportedError,
+)
 from skoda_public_api.api_layer.open_api_client import OpenAPIClient
 from skoda_public_api.api_layer.rest_api import PostEndpointResult, SkodaRestAPI
 from skoda_public_api.models.enums import (
@@ -55,6 +60,19 @@ def test_unknown_enum_values_fall_back_to_unknown() -> None:
     assert response.vehicle.charging.status.state is ChargingState.UNKNOWN
     assert response.vehicle.parking_position.state is MovementState.UNKNOWN
     assert response.vehicle.odometer.mileage_in_km == 80421
+
+
+def test_unknown_fallback_only_for_strings() -> None:
+    """Only unrecognized strings fall back to UNKNOWN, other types still fail validation."""
+    with pytest.raises(ValidationError):
+        _response(
+            {
+                "charging": {
+                    "isVehicleInSavedLocation": False,
+                    "status": {"state": 5},
+                }
+            }
+        )
 
 
 def test_error_without_description() -> None:
@@ -211,3 +229,25 @@ async def test_set_charge_limit_rejected(aresponses) -> None:
         client = OpenAPIClient(api_key="fake", session=session, base_url=TEST_BASE_URL)
         with pytest.raises(OpenApiUnsupportedError):
             await client.set_charge_limit(VIN, 80)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("status", "error"),
+    [(409, OpenApiError), (502, OpenApiServerError)],
+)
+async def test_unexpected_status_raises(aresponses, status: int, error: type) -> None:
+    """Status codes not listed in the specification are not treated as success."""
+    aresponses.add(
+        TEST_HOST,
+        f"/api/v1/vehicles/{VIN}/charging/start",
+        "POST",
+        aresponses.Response(status=status),
+    )
+
+    async with aiohttp.ClientSession() as session:
+        client = OpenAPIClient(api_key="fake", session=session, base_url=TEST_BASE_URL)
+        with pytest.raises(error) as exc_info:
+            await client.start_charging(VIN)
+
+    assert exc_info.value.status_code == status

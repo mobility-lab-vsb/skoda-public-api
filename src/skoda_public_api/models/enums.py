@@ -11,7 +11,9 @@ class _UnknownFallbackEnum(str, Enum):
 
     @classmethod
     def _missing_(cls, value: object) -> "_UnknownFallbackEnum | None":
-        return cls.__members__.get("UNKNOWN")
+        if isinstance(value, str):
+            return cls.__members__.get("UNKNOWN")
+        return None
 
 
 class TemperatureUnit(_UnknownFallbackEnum):
