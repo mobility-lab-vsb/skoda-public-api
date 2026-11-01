@@ -15,7 +15,7 @@ from ..models.charging import Charging
 from ..models.active_ventilation import ActiveVentilation
 from ..models.charging_profiles import ChargingProfiles
 from ..models.driving_range import FuelStatus
-from ..models.configurations import StartAirConditioningConfiguration, StartAuxiliaryHeatingConfiguration
+from ..models.configurations import ChargingLimitConfiguration, StartAirConditioningConfiguration, StartAuxiliaryHeatingConfiguration
 from .exceptions import (
     OpenApiError,
     OpenApiAuthenticationError,
@@ -47,6 +47,22 @@ class PostEndpointResult:
         self.headers = headers # Užitečné např. pro sledování RateLimit-Remaining nebo X-API-Key-Expires-At
 
 
+def _raise_for_status(status: int) -> None:
+    """Raise the matching OpenApiError for an error status code returned by the API."""
+    if status in (200, 202):
+        return
+    match status:
+        case 401: raise OpenApiAuthenticationError("Invalid or expired X-API-Key.")
+        case 403: raise OpenApiForbiddenError("Access forbidden. User not allowed to execute operation.")
+        case 404: raise OpenApiVehicleNotFoundError("Vehicle with this VIN does not exist.")
+        case 422: raise OpenApiUnsupportedError("Vehicle does not support this operation")
+        case 429: raise OpenApiRateLimitError("Rate limit exceeded or insufficient battery level.")
+        case 400: raise OpenApiError("Bad request (e.g. validation or VIN issues).")
+        case 500: raise OpenApiServerError("An unexpected error occurred while processing the request.", 500)
+        case 503: raise OpenApiServerError("API key validation is temporarily unavailable. Retry after 10 seconds.", 503)
+        case 504: raise OpenApiServerError("The vehicle did not respond in time.", 504)
+
+
 class SkodaRestAPI:
     """Rest API client for interacting with the Škoda Open API."""
 
@@ -67,18 +83,8 @@ class SkodaRestAPI:
         
         try:
             async with self._session.post(full_url, headers=headers, json=json_data) as response:
-                if response.status not in (200, 202):
-                    match response.status:
-                        case 401: raise OpenApiAuthenticationError("Invalid or expired X-API-Key.")
-                        case 403: raise OpenApiForbiddenError("Access forbidden. User not allowed to execute operation.")
-                        case 404: raise OpenApiVehicleNotFoundError("Vehicle with this VIN does not exist.")
-                        case 422: raise OpenApiUnsupportedError("Vehicle does not support this operation")
-                        case 429: raise OpenApiRateLimitError("Rate limit exceeded or insufficient battery level.")
-                        case 400: raise OpenApiError("Bad request (e.g. validation or VIN issues).")
-                        case 500: raise OpenApiServerError("An unexpected error occurred while processing the request.", 500)
-                        case 503: raise OpenApiServerError("API key validation is temporarily unavailable. Retry after 10 seconds.", 503)
-                        case 504: raise OpenApiServerError("The vehicle did not respond in time.", 504)
-                
+                _raise_for_status(response.status)
+
                 return response.status
         except TimeoutError as err:
             raise OpenApiTimeoutError(f"Timed out while trying to make the POST request: {err}") from err
@@ -86,6 +92,27 @@ class SkodaRestAPI:
             if isinstance(err, OpenApiError):
                 raise
             raise OpenApiError(f"There has been an error when trying to make the POST request: {err}") from err
+
+    async def _make_put_request(self, url: str, json_data: Optional[dict] = None) -> int:
+        """Helper method to make PUT requests to the Škoda API."""
+        full_url = f"{self._base_url}{url}"
+        headers = {
+            "X-API-Key": self._api_key,
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
+
+        try:
+            async with self._session.put(full_url, headers=headers, json=json_data) as response:
+                _raise_for_status(response.status)
+
+                return response.status
+        except TimeoutError as err:
+            raise OpenApiTimeoutError(f"Timed out while trying to make the PUT request: {err}") from err
+        except Exception as err:
+            if isinstance(err, OpenApiError):
+                raise
+            raise OpenApiError(f"There has been an error when trying to make the PUT request: {err}") from err
 
     async def _make_get_request(self, url: str, params: Optional[dict] = None) -> tuple[Any, dict[str, Any]]:
         """Helper method to make GET requests to the Škoda API returning JSON and headers."""
@@ -97,18 +124,8 @@ class SkodaRestAPI:
         
         try:
             async with self._session.get(full_url, headers=headers, params=params) as response:
-                if response.status not in (200, 202):
-                    match response.status:
-                        case 401: raise OpenApiAuthenticationError("Invalid or expired X-API-Key.")
-                        case 403: raise OpenApiForbiddenError("Access forbidden. User not allowed to execute operation.")
-                        case 404: raise OpenApiVehicleNotFoundError("Vehicle with this VIN does not exist.")
-                        case 422: raise OpenApiUnsupportedError("Vehicle does not support this operation")
-                        case 429: raise OpenApiRateLimitError("Rate limit exceeded or insufficient battery level.")
-                        case 400: raise OpenApiError("Bad request (e.g. validation or VIN issues).")
-                        case 500: raise OpenApiServerError("An unexpected error occurred while processing the request.", 500)
-                        case 503: raise OpenApiServerError("API key validation is temporarily unavailable. Retry after 10 seconds.", 503)
-                        case 504: raise OpenApiServerError("The vehicle did not respond in time.", 504)
-                
+                _raise_for_status(response.status)
+
                 json_data = await response.json()
                 headers_dict = {k.lower(): v for k, v in response.headers.items()}
                 return json_data, headers_dict
@@ -316,4 +333,15 @@ class SkodaRestAPI:
         status = await self._make_post_request(url)
         return PostEndpointResult(url=url, status=status, headers={})
     
+    # =========================================================================
+    # ENDPOINT METHODS - PUT
+    # =========================================================================
+    async def set_charging_limit(self, vin: str, config: ChargingLimitConfiguration) -> PostEndpointResult:
+        """Sets the charging limit (target state of charge) for the vehicle with the given VIN."""
+        url = f"/api/v1/vehicles/{vin}/charging/limit"
+
+        payload = config.model_dump(by_alias=True)
+        status = await self._make_put_request(url, json_data=payload)
+        return PostEndpointResult(url=url, status=status, headers={})
+
     #TODO rest of the methods

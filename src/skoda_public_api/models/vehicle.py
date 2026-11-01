@@ -13,7 +13,7 @@ from .charging import Charging
 from .driving_range import FuelStatus
 from .air_conditioning import AirConditioning
 from .charging_profiles import ChargingProfiles
-from .enums import OpenCloseState, VehicleCapability
+from .enums import OpenCloseState, VehicleCapability, VehicleOperationName
 
 # Capabilities whose top-level API field can report a transient
 # "<FEATURE>_UNAVAILABLE" error (as opposed to a permanent "_UNSUPPORTED" or
@@ -44,7 +44,12 @@ _VEHICLE_TYPE_CAPABILITIES: dict[str, VehicleCapability] = {
 class Odometer(BaseModel):
     """Odometer of the vehicle."""
     mileage_in_km: int
-    car_captured_timestamp: Optional[str]
+    car_captured_timestamp: Optional[str] = None
+
+
+class VehicleOperation(BaseModel):
+    """A remote operation the vehicle supports."""
+    name: VehicleOperationName
 
 class VehicleObject(BaseModel):
     """Pack whole vehicle object into one object for the vehicle."""
@@ -61,6 +66,7 @@ class VehicleObject(BaseModel):
     fuel_status: Optional[FuelStatus] = None
     charging: Optional[Charging] = None
     charging_profiles: Optional[ChargingProfiles] = None
+    operations: Optional[List[VehicleOperation]] = None
 
 class VehicleResponse(BaseModel):
     """Response object for vehicle data."""
@@ -147,5 +153,21 @@ class VehicleResponse(BaseModel):
                 caps.add(car_type_capability)
 
         return caps
+
+    def supported_operations(self) -> Optional[Set[VehicleOperationName]]:
+        """Return the remote operations this vehicle supports.
+
+        Returns None when the response carries no operations list (for example
+        when it reports OPERATIONS_UNAVAILABLE), so callers can tell "unknown"
+        apart from "supports nothing". Operations this library does not know
+        yet are left out.
+        """
+        if self.vehicle.operations is None:
+            return None
+        return {
+            operation.name
+            for operation in self.vehicle.operations
+            if operation.name is not VehicleOperationName.UNKNOWN
+        }
 
    

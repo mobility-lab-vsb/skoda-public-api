@@ -12,7 +12,7 @@ from ..models.auxiliary_heating import AuxiliaryHeating
 from ..models.charging import Charging
 from ..models.driving_range import FuelStatus
 from ..models.charging_profiles import ChargingProfiles
-from ..models.configurations import StartAirConditioningConfiguration, StartAuxiliaryHeatingConfiguration, ConfigurationTargetTemperature
+from ..models.configurations import ChargingLimitConfiguration, StartAirConditioningConfiguration, StartAuxiliaryHeatingConfiguration, ConfigurationTargetTemperature
 
 class OpenAPIClient:
     """Client for interacting with rest API and used in HomeAssistant."""
@@ -98,13 +98,20 @@ class OpenAPIClient:
         return endpoint_result.result
     
     
-    async def start_air_conditioning(self, vin: str, temperature: float, unit: str = "CELSIUS", without_external_power: bool = True) -> PostEndpointResult:
-        """Starts the air conditioning for the vehicle with the given VIN."""
-        config = StartAirConditioningConfiguration(
-            target_temperature=ConfigurationTargetTemperature(
+    async def start_air_conditioning(self, vin: str, temperature: Optional[float] = None, unit: str = "CELSIUS", without_external_power: bool = True) -> PostEndpointResult:
+        """Starts the air conditioning for the vehicle with the given VIN.
+
+        Without a temperature, the vehicle uses its last set target temperature.
+        """
+        temp_obj = None
+        if temperature is not None:
+            temp_obj = ConfigurationTargetTemperature(
                 value=temperature,
                 unit=unit,
-            ),
+            )
+
+        config = StartAirConditioningConfiguration(
+            target_temperature=temp_obj,
             air_conditioning_without_external_power=without_external_power,
         )
         return await self.rest_api.start_air_conditioning(vin, config)
@@ -192,9 +199,13 @@ class OpenAPIClient:
     async def set_auto_unlock_plug(self, vin: str) -> None:
         """Sets the automatic unlocking behavior of the charging plug (e.g., PERMANENT or OFF) for the vehicle with the given VIN."""
         pass
-    async def set_charge_limit(self, vin: str, limit: int) -> None:
-        """Sets the maximum charging limit in percent for the vehicle with the given VIN."""
-        pass
+    async def set_charge_limit(self, vin: str, limit: int) -> PostEndpointResult:
+        """Sets the maximum charging limit in percent for the vehicle with the given VIN.
+
+        Vehicles typically accept values between 50 and 100 in steps of 10.
+        """
+        config = ChargingLimitConfiguration(target_state_of_charge_in_percent=limit)
+        return await self.rest_api.set_charging_limit(vin, config)
 
     async def set_target_temperature(self, vin: str, temperature: float) -> None:
         """Sets the target temperature for AC or auxiliary heating for the vehicle with the given VIN."""

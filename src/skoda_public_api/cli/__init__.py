@@ -14,6 +14,7 @@ from asyncclick.core import Context
 from ..api_layer.const import ENDPOINT_URLS, Endpoints
 from ..api_layer.open_api_client import OpenAPIClient
 from .operations import (
+    set_charge_limit,
     start_active_ventilation,
     start_air_conditioning,
     start_auxiliary_heating,
@@ -111,6 +112,7 @@ cli.add_command(get_odometer)
 cli.add_command(get_parking_position)
 cli.add_command(get_vehicle)
 cli.add_command(get_vehicle_status)
+cli.add_command(set_charge_limit)
 cli.add_command(start_active_ventilation)
 cli.add_command(start_air_conditioning)
 cli.add_command(start_auxiliary_heating)

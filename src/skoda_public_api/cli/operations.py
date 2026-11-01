@@ -20,8 +20,8 @@ TEMPERATURE_UNITS = [TemperatureUnit.CELSIUS, TemperatureUnit.FAHRENHEIT]
     "temperature",
     "--temperature",
     type=float,
-    required=True,
-    help="Target temperature for the air conditioning.",
+    default=None,
+    help="Target temperature for the air conditioning. Without it, the vehicle uses its last set temperature.",
 )
 @click.option(
     "unit",
@@ -40,11 +40,11 @@ TEMPERATURE_UNITS = [TemperatureUnit.CELSIUS, TemperatureUnit.FAHRENHEIT]
 async def start_air_conditioning(
     ctx: Context,
     vin: str,
-    temperature: float,
+    temperature: Optional[float],
     unit: TemperatureUnit,
     with_external_power: bool,
 ) -> None:
-    """Start the air conditioning with the provided target temperature."""
+    """Start the air conditioning, optionally with a target temperature."""
     client: OpenAPIClient = ctx.obj["client"]
     await handle_request(
         ctx,
@@ -163,3 +163,13 @@ async def stop_charging(ctx: Context, vin: str) -> None:
     """Stop charging for the specified VIN."""
     client: OpenAPIClient = ctx.obj["client"]
     await handle_request(ctx, client.stop_charging, vin)
+
+
+@click.command()
+@click.argument("vin")
+@click.argument("limit", type=int)
+@click.pass_context
+async def set_charge_limit(ctx: Context, vin: str, limit: int) -> None:
+    """Set the charging limit in percent (typically 50 to 100 in steps of 10)."""
+    client: OpenAPIClient = ctx.obj["client"]
+    await handle_request(ctx, client.set_charge_limit, vin, limit)

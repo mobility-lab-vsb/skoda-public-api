@@ -1,77 +1,100 @@
 from enum import Enum
 
 
-class TemperatureUnit(str, Enum):
+class _UnknownFallbackEnum(str, Enum):
+    """Enum that maps values it does not recognize to its UNKNOWN member.
+
+    The API documents that new values may be added at any time and that clients
+    must tolerate them. Without this, a single new value anywhere in a response
+    would fail validation of the whole vehicle response.
+    """
+
+    @classmethod
+    def _missing_(cls, value: object) -> "_UnknownFallbackEnum | None":
+        return cls.__members__.get("UNKNOWN")
+
+
+class TemperatureUnit(_UnknownFallbackEnum):
     CELSIUS = "CELSIUS"
     FAHRENHEIT = "FAHRENHEIT"
     UNKNOWN = "UNKNOWN"
 
-class OnOffState(str, Enum):
+class OnOffState(_UnknownFallbackEnum):
     ON = "ON"
     OFF = "OFF"
     UNKNOWN = "UNKNOWN"
     UNSUPPORTED = "UNSUPPORTED"
 
-class LockState(str, Enum):
+class LockState(_UnknownFallbackEnum):
     LOCKED = "LOCKED"
     UNLOCKED = "UNLOCKED"
     UNKNOWN = "UNKNOWN"
 
-class OpenCloseState(str, Enum):
+class OpenCloseState(_UnknownFallbackEnum):
     OPEN = "OPEN"
     CLOSED = "CLOSED"
     UNKNOWN = "UNKNOWN"
     UNSUPPORTED = "UNSUPPORTED"
 
-class YesNoState(str, Enum):
+class YesNoState(_UnknownFallbackEnum):
     YES = "YES"
     NO = "NO"
     UNKNOWN = "UNKNOWN"
 
-class DoorsState(str, Enum):
+class DoorsState(_UnknownFallbackEnum):
     YES = "YES"
     NO = "NO"
     TRUNK_OPENED = "TRUNK_OPENED"
     OPENED = "OPENED"
     UNKNOWN = "UNKNOWN"
 
-class AuxiliaryHeatingState(str, Enum):
+class AuxiliaryHeatingState(_UnknownFallbackEnum):
     HEATING = "HEATING"
     VENTILATION = "VENTILATION"
     OFF = "OFF"
+    PREHEATING = "PREHEATING"
     HEATING_AUXILIARY = "HEATING_AUXILIARY"
     UNKNOWN = "UNKNOWN"
     UNSUPPORTED = "UNSUPPORTED"
 
-class AuxiliaryHeatingStartMode(str, Enum):
+class AuxiliaryHeatingStartMode(_UnknownFallbackEnum):
     HEATING = "HEATING"
     VENTILATION = "VENTILATION"
-
-class VentilationState(str, Enum):
+    UNKNOWN = "UNKNOWN"
+   
+class VentilationState(_UnknownFallbackEnum):
     VENTILATION = "VENTILATION"
     PREHEATING = "PREHEATING"
     OFF = "OFF"
     UNKNOWN = "UNKNOWN"
     UNSUPPORTED = "UNSUPPORTED"
 
-class HeaterSourceState(str, Enum):
+class HeaterSourceState(_UnknownFallbackEnum):
     AUTOMATIC = "AUTOMATIC"
     ELECTRIC = "ELECTRIC"
+    UNKNOWN = "UNKNOWN"
 
-class ChargeType(str, Enum):
+class ChargeType(_UnknownFallbackEnum):
     AC = "AC"
     DC = "DC"
     OFF = "OFF"
+    UNKNOWN = "UNKNOWN"
 
-class ChargingState(str, Enum):
+class ChargingState(_UnknownFallbackEnum):
     CONNECT_CABLE = "CONNECT_CABLE"
     CHARGING = "CHARGING"
     CONSERVING = "CONSERVING"
     READY_FOR_CHARGING = "READY_FOR_CHARGING"
     DISCHARGING = "DISCHARGING"
     CHARGING_INTERRUPTED = "CHARGING_INTERRUPTED"
+    UNKNOWN = "UNKNOWN"
 
-class ChargeMode(str, Enum):
+class PlugConnectionState(_UnknownFallbackEnum):
+    CONNECTED = "CONNECTED"
+    DISCONNECTED = "DISCONNECTED"
+    UNKNOWN = "UNKNOWN"
+
+class ChargeMode(_UnknownFallbackEnum):
     MANUAL = "MANUAL"
     TIMER = "TIMER"
     TIMER_CHARGING_WITH_CLIMATISATION = "TIMER_CHARGING_WITH_CLIMATISATION"
@@ -79,22 +102,27 @@ class ChargeMode(str, Enum):
     ONLY_OWN_CURRENT = "ONLY_OWN_CURRENT"
     IMMEDIATE_DISCHARGING = "IMMEDIATE_DISCHARGING"
     HOME_STORAGE_CHARGING = "HOME_STORAGE_CHARGING"
+    UNKNOWN = "UNKNOWN"
 
-class ChargeCareModeState(str, Enum):
+class ChargeCareModeState(_UnknownFallbackEnum):
     ACTIVATED = "ACTIVATED"
     DEACTIVATED = "DEACTIVATED"
+    UNKNOWN = "UNKNOWN"
 
-class AutoUnlockPlugState(str, Enum):
+class AutoUnlockPlugState(_UnknownFallbackEnum):
     PERMANENT = "PERMANENT"
     OFF = "OFF"
+    UNKNOWN = "UNKNOWN"
 
-class MaxChargeCurrentAcState(str, Enum):
+class MaxChargeCurrentAcState(_UnknownFallbackEnum):
     REDUCED = "REDUCED"
     MAXIMUM = "MAXIMUM"
+    UNKNOWN = "UNKNOWN"
 
-class MovementState(str, Enum):
+class MovementState(_UnknownFallbackEnum):
     IN_MOTION = "IN_MOTION"
     PARKED = "PARKED"
+    UNKNOWN = "UNKNOWN"
 
 class VehicleErrorState(str, Enum):
     """Known error types reported in ``VehicleResponse.errors``.
@@ -135,7 +163,7 @@ class VehicleErrorState(str, Enum):
     VEHICLE_STATUS_UNAVAILABLE = "VEHICLE_STATUS_UNAVAILABLE"
     VEHICLE_STATUS_UNSUPPORTED = "VEHICLE_STATUS_UNSUPPORTED"
 
-class AirConditioningState(str, Enum):
+class AirConditioningState(_UnknownFallbackEnum):
     OFF = "OFF"
     COOLING = "COOLING"
     HEATING = "HEATING"
@@ -144,6 +172,21 @@ class AirConditioningState(str, Enum):
     COMPLETED = "COMPLETED"
     UNKNOWN = "UNKNOWN"
     UNSUPPORTED = "UNSUPPORTED"
+
+class VehicleOperationName(_UnknownFallbackEnum):
+    """A remote operation, named after the operationId of its API endpoint."""
+    START_CHARGING = "startCharging"
+    STOP_CHARGING = "stopCharging"
+    SET_CHARGING_LIMIT = "setChargingLimit"
+    SET_CHARGE_MODE = "setChargeMode"
+    UPDATE_CHARGING_PROFILE = "updateChargingProfile"
+    START_AIR_CONDITIONING = "startAirConditioning"
+    STOP_AIR_CONDITIONING = "stopAirConditioning"
+    START_AUXILIARY_HEATING = "startAuxiliaryHeating"
+    STOP_AUXILIARY_HEATING = "stopAuxiliaryHeating"
+    START_ACTIVE_VENTILATION = "startActiveVentilation"
+    STOP_ACTIVE_VENTILATION = "stopActiveVentilation"
+    UNKNOWN = "UNKNOWN"
 
 class VehicleCapability(str, Enum):
     """A feature or vehicle attribute that a given vehicle may or may not support."""

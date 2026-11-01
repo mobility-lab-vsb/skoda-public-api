@@ -20,4 +20,4 @@ class VehicleError(BaseModel):
     # validation of the whole response. left_to_right makes known values parse
     # as VehicleErrorState rather than matching the str branch.
     type: Union[VehicleErrorState, str] = Field(union_mode="left_to_right")
-    description: str
+    description: Optional[str] = None

@@ -31,6 +31,18 @@ async def test_post_request_timeout_raises_open_api_timeout_error():
 
 
 @pytest.mark.asyncio
+async def test_put_request_timeout_raises_open_api_timeout_error():
+    """A client-side timeout on a PUT request must surface as OpenApiTimeoutError."""
+    session = MagicMock()
+    session.put = MagicMock(side_effect=TimeoutError("timed out"))
+
+    api = SkodaRestAPI(api_key="fake", session=session)
+
+    with pytest.raises(OpenApiTimeoutError):
+        await api._make_put_request("/api/v1/vehicles/FAKEVIN/charging/limit")
+
+
+@pytest.mark.asyncio
 async def test_open_api_timeout_error_is_an_open_api_error():
     """OpenApiTimeoutError must remain catchable by callers that only expect OpenApiError."""
     assert issubclass(OpenApiTimeoutError, OpenApiError)
