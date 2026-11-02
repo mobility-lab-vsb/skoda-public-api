@@ -81,11 +81,21 @@ Run `skodactl --help` for the full list of commands and options.
 
 ## Development
 
-Clone the repository and install it in editable mode together with the test dependencies:
+Clone the repository and install it in editable mode together with the test and development dependencies,
+then install the git hooks:
 
 ```sh
-pip install -e ".[test,cli]"
-pytest
+pip install -e ".[cli,test,dev]"
+prek install
+pytest tests/ci_cd_tests/
+```
+
+Code is formatted and linted with [ruff](https://docs.astral.sh/ruff/), run through
+[prek](https://github.com/j178/prek) (a drop-in replacement for `pre-commit`). The hooks run on every
+commit; to check the whole repository, as CI does, run:
+
+```sh
+prek run --all-files
 ```
 
 ## License

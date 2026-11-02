@@ -1,19 +1,16 @@
-from datetime import datetime
-from typing import List, Optional, Set
 from pydantic import Field
 
-from .base_model import BaseModel
-
-from .vehicle_status import VehicleStatus
-from .common import VehicleError
-from .parking_position import ParkingPosition
-from .auxiliary_heating import AuxiliaryHeating
 from .active_ventilation import ActiveVentilation
-from .charging import Charging
-from .driving_range import FuelStatus
 from .air_conditioning import AirConditioning
+from .auxiliary_heating import AuxiliaryHeating
+from .base_model import BaseModel
+from .charging import Charging
 from .charging_profiles import ChargingProfiles
+from .common import VehicleError
+from .driving_range import FuelStatus
 from .enums import OpenCloseState, VehicleCapability, VehicleOperationName
+from .parking_position import ParkingPosition
+from .vehicle_status import VehicleStatus
 
 # Capabilities whose top-level API field can report a transient
 # "<FEATURE>_UNAVAILABLE" error (as opposed to a permanent "_UNSUPPORTED" or
@@ -41,39 +38,46 @@ _VEHICLE_TYPE_CAPABILITIES: dict[str, VehicleCapability] = {
     "LPG": VehicleCapability.VEHICLE_TYPE_LPG,
 }
 
+
 class Odometer(BaseModel):
     """Odometer of the vehicle."""
+
     mileage_in_km: int
-    car_captured_timestamp: Optional[str] = None
+    car_captured_timestamp: str | None = None
 
 
 class VehicleOperation(BaseModel):
     """A remote operation the vehicle supports."""
+
     name: VehicleOperationName
+
 
 class VehicleObject(BaseModel):
     """Pack whole vehicle object into one object for the vehicle."""
-    name: Optional[str] = None
+
+    name: str | None = None
     vin: str
-    license_plate: Optional[str] = None
-    render_url: Optional[str] = None
-    odometer: Optional[Odometer] = None
-    status: Optional[VehicleStatus] = None
-    parking_position: Optional[ParkingPosition] = None 
-    auxiliary_heating: Optional[AuxiliaryHeating] = None
-    active_ventilation: Optional[ActiveVentilation] = None
-    air_conditioning: Optional[AirConditioning] = None
-    fuel_status: Optional[FuelStatus] = None
-    charging: Optional[Charging] = None
-    charging_profiles: Optional[ChargingProfiles] = None
-    operations: Optional[List[VehicleOperation]] = None
+    license_plate: str | None = None
+    render_url: str | None = None
+    odometer: Odometer | None = None
+    status: VehicleStatus | None = None
+    parking_position: ParkingPosition | None = None
+    auxiliary_heating: AuxiliaryHeating | None = None
+    active_ventilation: ActiveVentilation | None = None
+    air_conditioning: AirConditioning | None = None
+    fuel_status: FuelStatus | None = None
+    charging: Charging | None = None
+    charging_profiles: ChargingProfiles | None = None
+    operations: list[VehicleOperation] | None = None
+
 
 class VehicleResponse(BaseModel):
     """Response object for vehicle data."""
-    vehicle: VehicleObject
-    errors: List[VehicleError] = Field(default_factory=list)
 
-    def supported_capabilities(self) -> Set[VehicleCapability]:
+    vehicle: VehicleObject
+    errors: list[VehicleError] = Field(default_factory=list)
+
+    def supported_capabilities(self) -> set[VehicleCapability]:
         """Determine which capabilities this vehicle supports.
 
         A field being absent from the response can mean the vehicle doesn't
@@ -83,7 +87,7 @@ class VehicleResponse(BaseModel):
         capability for consumers that only evaluate it once.
         """
         vehicle = self.vehicle
-        caps: Set[VehicleCapability] = set()
+        caps: set[VehicleCapability] = set()
         unavailable_prefixes = {
             error.type.rsplit("_", 1)[0]
             for error in self.errors
@@ -154,7 +158,7 @@ class VehicleResponse(BaseModel):
 
         return caps
 
-    def supported_operations(self) -> Optional[Set[VehicleOperationName]]:
+    def supported_operations(self) -> set[VehicleOperationName] | None:
         """Return the remote operations this vehicle supports.
 
         Returns None when the response carries no operations list (for example
@@ -169,5 +173,3 @@ class VehicleResponse(BaseModel):
             for operation in self.vehicle.operations
             if operation.name is not VehicleOperationName.UNKNOWN
         }
-
-   

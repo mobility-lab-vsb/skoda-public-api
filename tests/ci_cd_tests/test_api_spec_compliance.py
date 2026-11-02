@@ -3,9 +3,9 @@
 from unittest.mock import AsyncMock, MagicMock
 
 import aiohttp
-import pytest
 from aiohttp import web
 from pydantic import ValidationError
+import pytest
 
 from skoda_public_api.api_layer.const import TEST_BASE_URL
 from skoda_public_api.api_layer.exceptions import (

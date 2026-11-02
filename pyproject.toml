@@ -51,3 +51,28 @@ cli = [
     "pygments ~=2.18",
     "pyyaml ~=6.0",
 ]
+dev = [
+    "prek>=0.3.0",
+    "ruff==0.17.3",
+]
+
+[tool.ruff]
+required-version = ">=0.17.3"
+
+[tool.ruff.lint]
+select = [
+    "E4",  # pycodestyle: imports
+    "E7",  # pycodestyle: statements
+    "E9",  # pycodestyle: runtime errors
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+]
+ignore = [
+    "UP042",  # (str, Enum) -> StrEnum changes str()/format() output of public enums
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["skoda_public_api"]
+combine-as-imports = true
+force-sort-within-sections = true

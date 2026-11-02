@@ -3,16 +3,18 @@
 import json
 from unittest.mock import AsyncMock
 
-import aresponses
-import pytest
 from asyncclick.testing import CliRunner
 from pydantic import ValidationError
+import pytest
 
 from skoda_public_api.api_layer.exceptions import OpenApiAuthenticationError
 from skoda_public_api.api_layer.open_api_client import OpenAPIClient
 from skoda_public_api.api_layer.rest_api import PostEndpointResult
 from skoda_public_api.cli import cli
-from skoda_public_api.cli.operations import start_air_conditioning, start_auxiliary_heating
+from skoda_public_api.cli.operations import (
+    start_air_conditioning,
+    start_auxiliary_heating,
+)
 from skoda_public_api.cli.utils import print_json, print_yaml
 from skoda_public_api.models.vehicle import Odometer
 

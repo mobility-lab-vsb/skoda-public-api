@@ -1,9 +1,9 @@
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
+from skoda_public_api.api_layer.exceptions import OpenApiError, OpenApiTimeoutError
 from skoda_public_api.api_layer.rest_api import SkodaRestAPI
-from skoda_public_api.api_layer.exceptions import OpenApiTimeoutError, OpenApiError
 
 
 @pytest.mark.asyncio
@@ -27,7 +27,9 @@ async def test_post_request_timeout_raises_open_api_timeout_error():
     api = SkodaRestAPI(api_key="fake", session=session)
 
     with pytest.raises(OpenApiTimeoutError):
-        await api._make_command_request("POST", "/api/v1/vehicles/FAKEVIN/charging/start")
+        await api._make_command_request(
+            "POST", "/api/v1/vehicles/FAKEVIN/charging/start"
+        )
 
 
 @pytest.mark.asyncio
@@ -39,7 +41,9 @@ async def test_put_request_timeout_raises_open_api_timeout_error():
     api = SkodaRestAPI(api_key="fake", session=session)
 
     with pytest.raises(OpenApiTimeoutError):
-        await api._make_command_request("PUT", "/api/v1/vehicles/FAKEVIN/charging/limit")
+        await api._make_command_request(
+            "PUT", "/api/v1/vehicles/FAKEVIN/charging/limit"
+        )
 
 
 @pytest.mark.asyncio
