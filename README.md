@@ -41,7 +41,9 @@ async def main() -> None:
 asyncio.run(main())
 ```
 
-Every response is a typed `pydantic` model — see [`src/skoda_public_api/models`](src/skoda_public_api/models) for the full data model, and [`src/skoda_public_api/api_layer/open_api_client.py`](src/skoda_public_api/api_layer/open_api_client.py) for the full list of available reads (vehicle status, odometer, charging, air conditioning, auxiliary heating, active ventilation, fuel status, parking position, charging profiles) and remote actions (start/stop charging, climate, auxiliary heating, active ventilation, window heating, charge limit, target temperature).
+Every response is a typed `pydantic` model — see [`src/skoda_public_api/models`](src/skoda_public_api/models) for the full data model, and [`src/skoda_public_api/api_layer/open_api_client.py`](src/skoda_public_api/api_layer/open_api_client.py) for the full list of available reads (vehicle status, odometer, charging, air conditioning, auxiliary heating, active ventilation, fuel status, parking position, charging profiles) and remote actions (start/stop charging, charge limit, air conditioning, auxiliary heating, active ventilation).
+
+Which remote actions a vehicle actually supports is reported by the API: `VehicleResponse.supported_operations()` returns them, and `VehicleResponse.supported_capabilities()` tells which data the vehicle provides.
 
 ## As CLI
 
@@ -72,6 +74,7 @@ Remote operations can be started as well:
 
 ```sh
 skodactl --api-key XXX start-air-conditioning TMBJX7NY4PM054321 --temperature 21
+skodactl --api-key XXX set-charge-limit TMBJX7NY4PM054321 80
 ```
 
 Run `skodactl --help` for the full list of commands and options.

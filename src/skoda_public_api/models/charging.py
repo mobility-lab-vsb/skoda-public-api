@@ -7,7 +7,9 @@ from .enums import (
     ChargeMode,
     ChargeCareModeState,
     AutoUnlockPlugState,
-    MaxChargeCurrentAcState
+    LockState,
+    MaxChargeCurrentAcState,
+    PlugConnectionState,
 )
 
 class BatteryStatus(BaseModel):
@@ -23,6 +25,8 @@ class ChargingStatus(BaseModel):
     fully_charged_at: Optional[str] = None
     state: Optional[ChargingState] = None
     charge_type: Optional[ChargeType] = None
+    plug_connection_state: Optional[PlugConnectionState] = None
+    plug_lock_state: Optional[LockState] = None
     battery: Optional[BatteryStatus] = None
 
 class ChargingSettings(BaseModel):

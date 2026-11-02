@@ -204,6 +204,55 @@ async def test_start_air_conditioning_defaults() -> None:
 
 
 @pytest.mark.asyncio
+async def test_start_air_conditioning_without_temperature() -> None:
+    mock = AsyncMock(spec=OpenAPIClient)
+    mock.start_air_conditioning.return_value = PostEndpointResult(
+        url=f"/api/v1/vehicles/{VIN}/air-conditioning/start",
+        status=202,
+        headers={},
+    )
+    runner = CliRunner()
+    result = await runner.invoke(
+        start_air_conditioning,
+        [VIN],
+        obj={"client": mock, "print": print_json},
+    )
+    assert result.exit_code == 0, result.output
+    mock.start_air_conditioning.assert_awaited_once_with(VIN, None, "CELSIUS", True)
+
+
+@pytest.mark.asyncio
+async def test_set_charge_limit() -> None:
+    mock = AsyncMock(spec=OpenAPIClient)
+    mock.set_charge_limit.return_value = PostEndpointResult(
+        url=f"/api/v1/vehicles/{VIN}/charging/limit",
+        status=202,
+        headers={},
+    )
+    runner = CliRunner()
+    result = await runner.invoke(
+        cli.commands["set-charge-limit"],
+        [VIN, "80"],
+        obj={"client": mock, "print": print_json},
+    )
+    assert result.exit_code == 0, result.output
+    mock.set_charge_limit.assert_awaited_once_with(VIN, 80)
+
+
+@pytest.mark.asyncio
+async def test_set_charge_limit_out_of_range() -> None:
+    mock = AsyncMock(spec=OpenAPIClient)
+    runner = CliRunner()
+    result = await runner.invoke(
+        cli.commands["set-charge-limit"],
+        [VIN, "150"],
+        obj={"client": mock, "print": print_json},
+    )
+    assert result.exit_code != 0
+    mock.set_charge_limit.assert_not_awaited()
+
+
+@pytest.mark.asyncio
 async def test_start_air_conditioning_with_options() -> None:
     mock = AsyncMock(spec=OpenAPIClient)
     mock.start_air_conditioning.return_value = PostEndpointResult(

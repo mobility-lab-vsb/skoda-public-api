@@ -21,3 +21,8 @@ class StartAuxiliaryHeatingConfiguration(BaseModel):
     duration_in_seconds: Optional[int] = Field(120, alias="durationInSeconds")
     start_mode: Optional[str] = Field("HEATING", alias="startMode")
     target_temperature: Optional[ConfigurationTargetTemperature] = Field(None, alias="targetTemperature")
+
+
+class ChargingLimitConfiguration(BaseModel):
+    """Configuration for setting the charging limit."""
+    target_state_of_charge_in_percent: int = Field(..., alias="targetStateOfChargeInPercent")
