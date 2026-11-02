@@ -1,6 +1,6 @@
 """Commands for the CLI for operations that can be performed."""
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import asyncclick as click
 from asyncclick.core import Context
@@ -40,7 +40,7 @@ TEMPERATURE_UNITS = [TemperatureUnit.CELSIUS, TemperatureUnit.FAHRENHEIT]
 async def start_air_conditioning(
     ctx: Context,
     vin: str,
-    temperature: Optional[float],
+    temperature: float | None,
     unit: TemperatureUnit,
     with_external_power: bool,
 ) -> None:
@@ -103,7 +103,7 @@ async def start_auxiliary_heating(
     spin: str,
     duration: int,
     start_mode: str,
-    temperature: Optional[float],
+    temperature: float | None,
     unit: TemperatureUnit,
 ) -> None:
     """Start the auxiliary heating for the specified VIN."""

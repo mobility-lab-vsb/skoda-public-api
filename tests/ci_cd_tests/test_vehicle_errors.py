@@ -1,4 +1,5 @@
 """Parsing of VehicleResponse.errors (issue #32)."""
+
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -54,9 +55,7 @@ def test_unknown_error_type_falls_back_to_str() -> None:
 
 def test_charging_profiles_unavailable_counts_as_supported() -> None:
     """A transient CHARGING_PROFILES_UNAVAILABLE error must not hide the capability."""
-    response = VehicleResponse.model_validate(
-        _payload("CHARGING_PROFILES_UNAVAILABLE")
-    )
+    response = VehicleResponse.model_validate(_payload("CHARGING_PROFILES_UNAVAILABLE"))
 
     caps = response.supported_capabilities()
     assert VehicleCapability.CHARGING_PROFILES in caps
@@ -70,9 +69,7 @@ async def test_invalid_response_raises_open_api_error() -> None:
     api = SkodaRestAPI(api_key="fake", session=AsyncMock())
     bad_json = {"vehicle": {"name": "missing vin"}}
 
-    with patch.object(
-        api, "_make_get_request", AsyncMock(return_value=(bad_json, {}))
-    ):
+    with patch.object(api, "_make_get_request", AsyncMock(return_value=(bad_json, {}))):
         with pytest.raises(OpenApiResponseValidationError) as exc_info:
             await api.get_vehicle(VIN)
 

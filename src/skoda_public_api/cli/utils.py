@@ -1,23 +1,23 @@
 """Utilities for the command line interface."""
 
+from collections.abc import Awaitable, Callable
+from enum import Enum, StrEnum
 import json
 import logging
 import sys
-from collections.abc import Awaitable, Callable
-from enum import Enum, StrEnum
 from types import SimpleNamespace
 from typing import Any
 
-import asyncclick as click
-import yaml
 from aiohttp import ClientSession, TraceConfig
 from aiohttp.tracing import TraceRequestEndParams
+import asyncclick as click
 from asyncclick.core import Context
 from pydantic import BaseModel, ValidationError
 from pygments import highlight
 from pygments.formatters import TerminalFormatter
 from pygments.lexer import Lexer
 from pygments.lexers import JsonLexer, YamlLexer
+import yaml
 
 from ..api_layer.exceptions import OpenApiError
 from ..api_layer.rest_api import PostEndpointResult
@@ -79,7 +79,11 @@ def highlight_for_console(text: str, lexer: Lexer) -> str:
 
 
 def print_json(data: Any) -> None:
-    print(highlight_for_console(json.dumps(data, indent=4, ensure_ascii=False), JsonLexer()))
+    print(
+        highlight_for_console(
+            json.dumps(data, indent=4, ensure_ascii=False), JsonLexer()
+        )
+    )
 
 
 def print_yaml(data: Any) -> None:

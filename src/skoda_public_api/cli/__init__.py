@@ -6,10 +6,10 @@ skodactl
 
 from logging import DEBUG, INFO
 
-import asyncclick as click
-import coloredlogs
 from aiohttp import ClientSession
+import asyncclick as click
 from asyncclick.core import Context
+import coloredlogs
 
 from ..api_layer.const import ENDPOINT_URLS, Endpoints
 from ..api_layer.open_api_client import OpenAPIClient

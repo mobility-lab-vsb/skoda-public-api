@@ -1,84 +1,97 @@
-import logging
-from typing import Any, Optional, List
+from typing import Any
+
 from aiohttp import ClientSession
-from .const import BETA_URL
-from .rest_api import PostEndpointResult, SkodaRestAPI
-from ..models.vehicle import VehicleResponse, Odometer
-from ..models.vehicle_status import VehicleStatus
+
 from ..models.active_ventilation import ActiveVentilation
 from ..models.air_conditioning import AirConditioning
-from ..models.parking_position import ParkingPosition
 from ..models.auxiliary_heating import AuxiliaryHeating
 from ..models.charging import Charging
-from ..models.driving_range import FuelStatus
 from ..models.charging_profiles import ChargingProfiles
-from ..models.configurations import ChargingLimitConfiguration, StartAirConditioningConfiguration, StartAuxiliaryHeatingConfiguration, ConfigurationTargetTemperature
+from ..models.configurations import (
+    ChargingLimitConfiguration,
+    ConfigurationTargetTemperature,
+    StartAirConditioningConfiguration,
+    StartAuxiliaryHeatingConfiguration,
+)
+from ..models.driving_range import FuelStatus
+from ..models.parking_position import ParkingPosition
+from ..models.vehicle import Odometer, VehicleResponse
+from ..models.vehicle_status import VehicleStatus
+from .const import BETA_URL
+from .rest_api import PostEndpointResult, SkodaRestAPI
+
 
 class OpenAPIClient:
     """Client for interacting with rest API and used in HomeAssistant."""
 
-    def __init__(self, api_key: str, session: ClientSession, base_url: str = BETA_URL) -> None:
-       self.rest_api = SkodaRestAPI(api_key=api_key, session=session, base_url=base_url)
-       self.last_headers: dict[str, Any] = {}
+    def __init__(
+        self, api_key: str, session: ClientSession, base_url: str = BETA_URL
+    ) -> None:
+        self.rest_api = SkodaRestAPI(
+            api_key=api_key, session=session, base_url=base_url
+        )
+        self.last_headers: dict[str, Any] = {}
 
     @property
-    def api_key_expires_at(self) -> Optional[str]:
+    def api_key_expires_at(self) -> str | None:
         """Return the expiration timestamp of the API key."""
         return self.last_headers.get("x-api-key-expires-at")
 
     @property
-    def rate_limit_remaining(self) -> Optional[int]:
+    def rate_limit_remaining(self) -> int | None:
         """Return remaining requests quota."""
         val = self.last_headers.get("ratelimit-remaining")
         return int(val) if val is not None else None
 
     @property
-    def rate_limit_reset(self) -> Optional[int]:
+    def rate_limit_reset(self) -> int | None:
         """Return the time when the rate limit will be reset."""
         val = self.last_headers.get("ratelimit-reset")
         return int(val) if val is not None else None
 
-    async def get_vehicle(self, vin: str, include: Optional[List[str]] = None) -> VehicleResponse:
+    async def get_vehicle(
+        self, vin: str, include: list[str] | None = None
+    ) -> VehicleResponse:
         """Get the actual vehicle data and return the parsed Pydantic model."""
         endpoint_result = await self.rest_api.get_vehicle(vin, include=include)
         self.last_headers = endpoint_result.headers
         return endpoint_result.result
-    
-    async def get_vehicle_status(self, vin: str) -> Optional[VehicleStatus]:
+
+    async def get_vehicle_status(self, vin: str) -> VehicleStatus | None:
         endpoint_result = await self.rest_api.get_vehicle_status(vin)
         self.last_headers = endpoint_result.headers
         return endpoint_result.result
-    
+
     async def get_air_conditioning(self, vin: str) -> AirConditioning:
         """Get the actual vehicle status and return the parsed Pydantic model."""
         endpoint_result = await self.rest_api.get_air_conditioning(vin)
         self.last_headers = endpoint_result.headers
         return endpoint_result.result
-    
+
     async def get_parking_positions(self, vin: str) -> ParkingPosition:
         """Get the actual vehicle status and return the parsed Pydantic model."""
         endpoint_result = await self.rest_api.get_parking_positions(vin)
         self.last_headers = endpoint_result.headers
         return endpoint_result.result
-    
+
     async def get_auxiliary_heating(self, vin: str) -> AuxiliaryHeating:
         """Get the actual vehicle status and return the parsed Pydantic model."""
         endpoint_result = await self.rest_api.get_auxiliary_heating(vin)
         self.last_headers = endpoint_result.headers
         return endpoint_result.result
-    
+
     async def get_odometer(self, vin: str) -> Odometer:
         """Get the actual vehicle status and return the parsed Pydantic model."""
         endpoint_result = await self.rest_api.get_odometer(vin)
         self.last_headers = endpoint_result.headers
         return endpoint_result.result
-    
+
     async def get_charging(self, vin: str) -> Charging:
         """Get the actual vehicle status and return the parsed Pydantic model."""
         endpoint_result = await self.rest_api.get_charging(vin)
         self.last_headers = endpoint_result.headers
         return endpoint_result.result
-    
+
     async def get_active_ventilation(self, vin: str) -> ActiveVentilation:
         """Get the actual active ventilation and return the parsed Pydantic model."""
         endpoint_result = await self.rest_api.get_active_ventilation(vin)
@@ -96,9 +109,14 @@ class OpenAPIClient:
         endpoint_result = await self.rest_api.get_charging_profiles(vin)
         self.last_headers = endpoint_result.headers
         return endpoint_result.result
-    
-    
-    async def start_air_conditioning(self, vin: str, temperature: Optional[float] = None, unit: str = "CELSIUS", without_external_power: bool = True) -> PostEndpointResult:
+
+    async def start_air_conditioning(
+        self,
+        vin: str,
+        temperature: float | None = None,
+        unit: str = "CELSIUS",
+        without_external_power: bool = True,
+    ) -> PostEndpointResult:
         """Starts the air conditioning for the vehicle with the given VIN.
 
         Without a temperature, the vehicle uses its last set target temperature.
@@ -115,12 +133,20 @@ class OpenAPIClient:
             air_conditioning_without_external_power=without_external_power,
         )
         return await self.rest_api.start_air_conditioning(vin, config)
-    
+
     async def stop_air_conditioning(self, vin: str) -> PostEndpointResult:
         """Stops the air_conditioning of the vehicle and return None if it was succesfull else catch an exception in HomeAssistant"""
         return await self.rest_api.stop_air_conditioning(vin)
 
-    async def start_auxiliary_heating(self, vin: str, spin: str, duration_in_seconds: int = 120, start_mode: str = "HEATING", target_temperature: Optional[float] = None, unit: str = "CELSIUS") -> PostEndpointResult:
+    async def start_auxiliary_heating(
+        self,
+        vin: str,
+        spin: str,
+        duration_in_seconds: int = 120,
+        start_mode: str = "HEATING",
+        target_temperature: float | None = None,
+        unit: str = "CELSIUS",
+    ) -> PostEndpointResult:
         """Starts the auxiliary heating for the vehicle with the given VIN."""
         temp_obj = None
         if target_temperature is not None:
@@ -140,7 +166,7 @@ class OpenAPIClient:
     async def stop_auxiliary_heating(self, vin: str) -> PostEndpointResult:
         """Stops the auxiliary_heating of the vehicle and return None if it was succesfull else catch an exception in HomeAssistant"""
         return await self.rest_api.stop_auxiliary_heating(vin)
-    
+
     async def start_active_ventilation(self, vin: str) -> PostEndpointResult:
         """Starts the active_ventilation for the vehicle with the given VIN."""
         return await self.rest_api.start_active_ventilation(vin)
@@ -160,11 +186,11 @@ class OpenAPIClient:
     async def connect(self):
         """TODO: Implementation of connect mechanism."""
         pass
-    
+
     async def disconnect(self) -> None:
         """TODO: Implementation of disconnect mechanism."""
         pass
-    
+
     async def verify_spin(self, spin: str) -> bool:
         """TODO: Implementation of SPIN verification."""
         pass
@@ -172,6 +198,7 @@ class OpenAPIClient:
     """
     ======= NOT IMPLEMENTED FUNCTIONS - CAN BE USED SOMETIME IN THE FUTURE =======
     """
+
     async def refresh_auxiliary_heating(self, vin: str) -> None:
         """Refreshes the auxiliary heating status of the vehicle with the given VIN."""
         pass
@@ -199,6 +226,7 @@ class OpenAPIClient:
     async def set_auto_unlock_plug(self, vin: str) -> None:
         """Sets the automatic unlocking behavior of the charging plug (e.g., PERMANENT or OFF) for the vehicle with the given VIN."""
         pass
+
     async def set_charge_limit(self, vin: str, limit: int) -> PostEndpointResult:
         """Sets the maximum charging limit in percent for the vehicle with the given VIN.
 
@@ -210,4 +238,5 @@ class OpenAPIClient:
     async def set_target_temperature(self, vin: str, temperature: float) -> None:
         """Sets the target temperature for AC or auxiliary heating for the vehicle with the given VIN."""
         pass
+
     # TODO: Add more methods for other endpoints as needed

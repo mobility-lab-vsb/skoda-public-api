@@ -1,6 +1,7 @@
-from typing import Optional
 from pydantic import Field
+
 from .base_model import BaseModel
+
 
 class ConfigurationTargetTemperature(BaseModel):
     value: float = Field(..., alias="value")
@@ -9,20 +10,30 @@ class ConfigurationTargetTemperature(BaseModel):
 
 class StartAirConditioningConfiguration(BaseModel):
     """Configuration for starting air conditioning."""
-    target_temperature: Optional[ConfigurationTargetTemperature] = Field(None, alias="targetTemperature")
-    heater_source: Optional[str] = Field(None, alias="heaterSource")
-    air_conditioning_without_external_power: Optional[bool] = Field(
+
+    target_temperature: ConfigurationTargetTemperature | None = Field(
+        None, alias="targetTemperature"
+    )
+    heater_source: str | None = Field(None, alias="heaterSource")
+    air_conditioning_without_external_power: bool | None = Field(
         True, alias="airConditioningWithoutExternalPower"
     )
 
+
 class StartAuxiliaryHeatingConfiguration(BaseModel):
     """Configuration for starting auxiliary heating."""
+
     spin: str = Field(..., alias="spin")
-    duration_in_seconds: Optional[int] = Field(120, alias="durationInSeconds")
-    start_mode: Optional[str] = Field("HEATING", alias="startMode")
-    target_temperature: Optional[ConfigurationTargetTemperature] = Field(None, alias="targetTemperature")
+    duration_in_seconds: int | None = Field(120, alias="durationInSeconds")
+    start_mode: str | None = Field("HEATING", alias="startMode")
+    target_temperature: ConfigurationTargetTemperature | None = Field(
+        None, alias="targetTemperature"
+    )
 
 
 class ChargingLimitConfiguration(BaseModel):
     """Configuration for setting the charging limit."""
-    target_state_of_charge_in_percent: int = Field(..., alias="targetStateOfChargeInPercent")
+
+    target_state_of_charge_in_percent: int = Field(
+        ..., alias="targetStateOfChargeInPercent"
+    )
