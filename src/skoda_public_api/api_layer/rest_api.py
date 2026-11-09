@@ -1,7 +1,8 @@
+import json
 import logging
 from typing import Any, Generic, TypeVar
 
-from aiohttp import ClientSession
+from aiohttp import ClientResponse, ClientSession
 from pydantic import ValidationError
 
 from ..models.active_ventilation import ActiveVentilation
@@ -56,45 +57,79 @@ class PostEndpointResult:
         self.headers = headers  # Užitečné např. pro sledování RateLimit-Remaining nebo X-API-Key-Expires-At
 
 
-def _raise_for_status(status: int) -> None:
-    """Raise the matching OpenApiError for an error status code returned by the API."""
-    if 200 <= status < 300:
+async def _read_error_body(response: ClientResponse) -> Any:
+    """Read the body of an error response without ever masking its status code.
+
+    Returns the parsed JSON when the body is JSON, the raw text otherwise, and
+    ``None`` when the body is empty or cannot be read at all.
+    """
+    try:
+        text = await response.text()
+    except Exception:  # a body that cannot be read must not hide the status code
+        return None
+    if not text:
+        return None
+    try:
+        return json.loads(text)
+    except ValueError:
+        return text
+
+
+async def _raise_for_status(response: ClientResponse) -> None:
+    """Raise the matching OpenApiError for an error status code returned by the API.
+
+    Records headers and the error response body.
+    """
+    if 200 <= response.status < 300:
         return
+
+    status = response.status
+    headers = dict(response.headers)
+    body = await _read_error_body(response)
+
     match status:
         case 401:
-            raise OpenApiAuthenticationError("Invalid or expired X-API-Key.")
+            raise OpenApiAuthenticationError(headers=headers, body=body)
         case 403:
-            raise OpenApiForbiddenError(
-                "Access forbidden. User not allowed to execute operation."
-            )
+            raise OpenApiForbiddenError(headers=headers, body=body)
         case 404:
-            raise OpenApiVehicleNotFoundError("Vehicle with this VIN does not exist.")
+            raise OpenApiVehicleNotFoundError(headers=headers, body=body)
         case 422:
-            raise OpenApiUnsupportedError("Vehicle does not support this operation")
+            raise OpenApiUnsupportedError(headers=headers, body=body)
         case 429:
-            raise OpenApiRateLimitError(
-                "Rate limit exceeded or insufficient battery level."
-            )
+            raise OpenApiRateLimitError(headers=headers, body=body)
         case 400:
-            raise OpenApiError("Bad request (e.g. validation or VIN issues).")
-        case 500:
-            raise OpenApiServerError(
-                "An unexpected error occurred while processing the request.", 500
+            raise OpenApiError(
+                "Bad request (e.g. validation or VIN issues).",
+                headers=headers,
+                body=body,
             )
+        case 500:
+            raise OpenApiServerError(headers=headers, body=body)
         case 503:
             raise OpenApiServerError(
                 "API key validation is temporarily unavailable. Retry after 10 seconds.",
                 503,
+                headers,
+                body,
             )
         case 504:
-            raise OpenApiServerError("The vehicle did not respond in time.", 504)
+            raise OpenApiServerError(
+                "The vehicle did not respond in time.", 504, headers, body
+            )
         case _ if status >= 500:
             raise OpenApiServerError(
-                f"Unexpected server error with status code {status}.", status
+                f"Unexpected server error with status code {status}.",
+                status,
+                headers,
+                body,
             )
         case _:
             raise OpenApiError(
-                f"Unexpected status code {status} returned by the API.", status
+                f"Unexpected status code {status} returned by the API.",
+                status,
+                headers,
+                body,
             )
 
 
@@ -124,7 +159,7 @@ class SkodaRestAPI:
             async with self._session.request(
                 method, full_url, headers=headers, json=json_data
             ) as response:
-                _raise_for_status(response.status)
+                await _raise_for_status(response)
 
                 return response.status
         except TimeoutError as err:
@@ -152,7 +187,7 @@ class SkodaRestAPI:
             async with self._session.get(
                 full_url, headers=headers, params=params
             ) as response:
-                _raise_for_status(response.status)
+                await _raise_for_status(response)
 
                 json_data = await response.json()
                 headers_dict = {k.lower(): v for k, v in response.headers.items()}
