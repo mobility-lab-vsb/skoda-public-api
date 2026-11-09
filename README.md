@@ -45,6 +45,26 @@ Every response is a typed `pydantic` model — see [`src/skoda_public_api/models
 
 Which remote actions a vehicle actually supports is reported by the API: `VehicleResponse.supported_operations()` returns them, and `VehicleResponse.supported_capabilities()` tells which data the vehicle provides.
 
+### Handling a failed request
+
+When a request fails, the library raises an `OpenApiError` subclass containing response headers and problem details if available:
+
+```python
+from skoda_public_api.api_layer.exceptions import OpenApiRateLimitError
+
+try:
+    await client.start_charging("TMBJX7NY4PM054321")
+except OpenApiRateLimitError as error:
+    if error.problem_type == "rate-limit-exceeded":
+        # The quota of the key is used up; wait for the window to replenish.
+        await asyncio.sleep(error.retry_after or 3600)
+    elif error.problem_type == "vehicle-not-accepting-requests":
+        # The vehicle declined the operation, e.g. because its battery is too low.
+        await asyncio.sleep(error.retry_after or 300)
+    else:
+        raise
+```
+
 ## As CLI
 
 The library ships with a command line interface called `skodactl`, which is useful for manually
