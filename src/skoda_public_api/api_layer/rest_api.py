@@ -9,8 +9,9 @@ from ..models.active_ventilation import ActiveVentilation
 from ..models.air_conditioning import AirConditioning
 from ..models.auxiliary_heating import AuxiliaryHeating
 from ..models.charging import Charging
-from ..models.charging_profiles import ChargingProfiles
+from ..models.charging_profiles import ChargingProfile, ChargingProfiles
 from ..models.configurations import (
+    ChargeModeConfiguration,
     ChargingLimitConfiguration,
     StartAirConditioningConfiguration,
     StartAuxiliaryHeatingConfiguration,
@@ -451,4 +452,27 @@ class SkodaRestAPI:
         status = await self._make_command_request("PUT", url, json_data=payload)
         return PostEndpointResult(url=url, status=status, headers={})
 
-    # TODO rest of the methods
+    async def set_charge_mode(
+        self, vin: str, config: ChargeModeConfiguration
+    ) -> PostEndpointResult:
+        """Sets the charge mode for the vehicle with the given VIN."""
+        url = f"/api/v1/vehicles/{vin}/charging/mode"
+
+        payload = config.model_dump(mode="json", by_alias=True)
+        status = await self._make_command_request("PUT", url, json_data=payload)
+        return PostEndpointResult(url=url, status=status, headers={})
+
+    async def update_charging_profile(
+        self, vin: str, profile: ChargingProfile
+    ) -> PostEndpointResult:
+        """Updates a charging profile of the vehicle with the given VIN.
+
+        The vehicle applies the submitted profile as a whole.
+        """
+        url = f"/api/v1/vehicles/{vin}/charging-profiles/{profile.id}"
+
+        payload = profile.model_dump(mode="json", by_alias=True, exclude_none=True)
+        # The API requires the timers list even when the profile has none.
+        payload.setdefault("timers", [])
+        status = await self._make_command_request("PUT", url, json_data=payload)
+        return PostEndpointResult(url=url, status=status, headers={})
