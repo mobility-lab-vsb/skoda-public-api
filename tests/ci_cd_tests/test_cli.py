@@ -16,6 +16,7 @@ from skoda_public_api.cli.operations import (
     start_auxiliary_heating,
 )
 from skoda_public_api.cli.utils import print_json, print_yaml
+from skoda_public_api.models.enums import ChargeMode
 from skoda_public_api.models.vehicle import Odometer
 
 VIN = "DMBGF9NY3NF032963"
@@ -252,6 +253,82 @@ async def test_set_charge_limit_out_of_range() -> None:
     )
     assert result.exit_code != 0
     mock.set_charge_limit.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_set_charge_mode() -> None:
+    mock = AsyncMock(spec=OpenAPIClient)
+    mock.set_charge_mode.return_value = PostEndpointResult(
+        url=f"/api/v1/vehicles/{VIN}/charging/mode",
+        status=202,
+        headers={},
+    )
+    runner = CliRunner()
+    result = await runner.invoke(
+        cli.commands["set-charge-mode"],
+        [VIN, "TIMER"],
+        obj={"client": mock, "print": print_json},
+    )
+    assert result.exit_code == 0, result.output
+    mock.set_charge_mode.assert_awaited_once_with(VIN, ChargeMode.TIMER)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mode", ["UNKNOWN", "SOME_FUTURE_MODE"])
+async def test_set_charge_mode_invalid(mode: str) -> None:
+    mock = AsyncMock(spec=OpenAPIClient)
+    runner = CliRunner()
+    result = await runner.invoke(
+        cli.commands["set-charge-mode"],
+        [VIN, mode],
+        obj={"client": mock, "print": print_json},
+    )
+    assert result.exit_code != 0
+    mock.set_charge_mode.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_update_charging_profile() -> None:
+    mock = AsyncMock(spec=OpenAPIClient)
+    mock.update_charging_profile.return_value = PostEndpointResult(
+        url=f"/api/v1/vehicles/{VIN}/charging-profiles/7",
+        status=202,
+        headers={},
+    )
+    profile = {
+        "id": 7,
+        "name": "Work",
+        "settings": {"targetStateOfChargeInPercent": 80},
+        "preferredChargingTimes": [],
+        "timers": [],
+    }
+    runner = CliRunner()
+    result = await runner.invoke(
+        cli.commands["update-charging-profile"],
+        [VIN, "-"],
+        input=json.dumps(profile),
+        obj={"client": mock, "print": print_json},
+    )
+    assert result.exit_code == 0, result.output
+    mock.update_charging_profile.assert_awaited_once()
+    vin, sent_profile = mock.update_charging_profile.await_args.args
+    assert vin == VIN
+    assert sent_profile.id == 7
+    assert sent_profile.settings.target_state_of_charge_in_percent == 80
+
+
+@pytest.mark.asyncio
+async def test_update_charging_profile_invalid_file() -> None:
+    mock = AsyncMock(spec=OpenAPIClient)
+    runner = CliRunner()
+    result = await runner.invoke(
+        cli.commands["update-charging-profile"],
+        [VIN, "-"],
+        input=json.dumps({"name": "Work"}),
+        obj={"client": mock, "print": print_json},
+    )
+    assert result.exit_code != 0
+    mock.update_charging_profile.assert_not_awaited()
 
 
 @pytest.mark.asyncio

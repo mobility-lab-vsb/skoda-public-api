@@ -1,6 +1,7 @@
 from pydantic import Field
 
 from .base_model import BaseModel
+from .enums import ChargeMode
 
 
 class ConfigurationTargetTemperature(BaseModel):
@@ -37,3 +38,9 @@ class ChargingLimitConfiguration(BaseModel):
     target_state_of_charge_in_percent: int = Field(
         ..., alias="targetStateOfChargeInPercent"
     )
+
+
+class ChargeModeConfiguration(BaseModel):
+    """Configuration for setting the charge mode."""
+
+    charge_mode: ChargeMode = Field(..., alias="chargeMode")
