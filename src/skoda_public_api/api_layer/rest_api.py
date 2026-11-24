@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from typing import Any, Generic, TypeVar
 
 from aiohttp import ClientResponse, ClientSession
@@ -34,6 +35,40 @@ from .exceptions import (
 
 T = TypeVar("T")
 _LOGGER = logging.getLogger(__name__)
+
+_VIN_IN_PATH = re.compile(r"(/vehicles/)([^/?]+)")
+
+
+def _mask_vin(vin: str) -> str:
+    """Hide all but the last 4 characters, enough to tell vehicles apart in a log."""
+    return f"***{vin[-4:]}" if len(vin) > 4 else "***"
+
+
+def _log_response(method: str, response: ClientResponse) -> None:
+    """Log the status and rate limit headers of a response, with the VIN masked."""
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    path = _VIN_IN_PATH.sub(
+        lambda match: match.group(1) + _mask_vin(match.group(2)),
+        response.url.path_qs,
+    )
+    headers = response.headers
+    remaining = headers.get("RateLimit-Remaining")
+    limit = headers.get("RateLimit-Limit")
+    reset = headers.get("RateLimit-Reset")
+    # The API omits the quota headers when it rejects the key itself (401/403).
+    if remaining is None and limit is None and reset is None:
+        _LOGGER.debug("%s %s -> %s", method, path, response.status)
+        return
+    _LOGGER.debug(
+        "%s %s -> %s (RateLimit-Remaining: %s/%s, RateLimit-Reset: %s)",
+        method,
+        path,
+        response.status,
+        remaining,
+        limit,
+        reset,
+    )
 
 
 class GetEndpointResult(Generic[T]):
@@ -159,6 +194,7 @@ class SkodaRestAPI:
             async with self._session.request(
                 method, full_url, headers=headers, json=json_data
             ) as response:
+                _log_response(method, response)
                 await _raise_for_status(response)
 
                 return response.status
@@ -187,6 +223,7 @@ class SkodaRestAPI:
             async with self._session.get(
                 full_url, headers=headers, params=params
             ) as response:
+                _log_response("GET", response)
                 await _raise_for_status(response)
 
                 json_data = await response.json()
