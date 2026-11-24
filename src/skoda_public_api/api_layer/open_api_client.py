@@ -1,3 +1,4 @@
+from collections.abc import Awaitable
 from typing import Any
 
 from aiohttp import ClientSession
@@ -112,6 +113,14 @@ class OpenAPIClient:
         self.last_headers = endpoint_result.headers
         return endpoint_result.result
 
+    async def _send_command(
+        self, command: Awaitable[PostEndpointResult]
+    ) -> PostEndpointResult:
+        """Send a command and keep its response headers, like the GET methods do."""
+        result = await command
+        self.last_headers = result.headers
+        return result
+
     async def start_air_conditioning(
         self,
         vin: str,
@@ -134,11 +143,13 @@ class OpenAPIClient:
             target_temperature=temp_obj,
             air_conditioning_without_external_power=without_external_power,
         )
-        return await self.rest_api.start_air_conditioning(vin, config)
+        return await self._send_command(
+            self.rest_api.start_air_conditioning(vin, config)
+        )
 
     async def stop_air_conditioning(self, vin: str) -> PostEndpointResult:
         """Stops the air_conditioning of the vehicle and return None if it was succesfull else catch an exception in HomeAssistant"""
-        return await self.rest_api.stop_air_conditioning(vin)
+        return await self._send_command(self.rest_api.stop_air_conditioning(vin))
 
     async def start_auxiliary_heating(
         self,
@@ -163,27 +174,29 @@ class OpenAPIClient:
             start_mode=start_mode,
             target_temperature=temp_obj,
         )
-        return await self.rest_api.start_auxiliary_heating(vin, config)
+        return await self._send_command(
+            self.rest_api.start_auxiliary_heating(vin, config)
+        )
 
     async def stop_auxiliary_heating(self, vin: str) -> PostEndpointResult:
         """Stops the auxiliary_heating of the vehicle and return None if it was succesfull else catch an exception in HomeAssistant"""
-        return await self.rest_api.stop_auxiliary_heating(vin)
+        return await self._send_command(self.rest_api.stop_auxiliary_heating(vin))
 
     async def start_active_ventilation(self, vin: str) -> PostEndpointResult:
         """Starts the active_ventilation for the vehicle with the given VIN."""
-        return await self.rest_api.start_active_ventilation(vin)
+        return await self._send_command(self.rest_api.start_active_ventilation(vin))
 
     async def stop_active_ventilation(self, vin: str) -> PostEndpointResult:
         """Stops the active_ventilation of the vehicle and return None if it was succesfull else catch an exception in HomeAssistant"""
-        return await self.rest_api.stop_active_ventilation(vin)
+        return await self._send_command(self.rest_api.stop_active_ventilation(vin))
 
     async def start_charging(self, vin: str) -> PostEndpointResult:
         """Starts the charging process for the vehicle with the given VIN."""
-        return await self.rest_api.start_charging(vin)
+        return await self._send_command(self.rest_api.start_charging(vin))
 
     async def stop_charging(self, vin: str) -> PostEndpointResult:
         """Stops the charging process for the vehicle with the given VIN."""
-        return await self.rest_api.stop_charging(vin)
+        return await self._send_command(self.rest_api.stop_charging(vin))
 
     async def connect(self):
         """TODO: Implementation of connect mechanism."""
@@ -235,7 +248,7 @@ class OpenAPIClient:
         Vehicles typically accept values between 50 and 100 in steps of 10.
         """
         config = ChargingLimitConfiguration(target_state_of_charge_in_percent=limit)
-        return await self.rest_api.set_charging_limit(vin, config)
+        return await self._send_command(self.rest_api.set_charging_limit(vin, config))
 
     async def set_charge_mode(
         self, vin: str, mode: ChargeMode | str
