@@ -262,7 +262,7 @@ class OpenAPIClient:
         if charge_mode is ChargeMode.UNKNOWN:
             raise ValueError(f"Unknown charge mode: {mode}")
         config = ChargeModeConfiguration(charge_mode=charge_mode)
-        return await self.rest_api.set_charge_mode(vin, config)
+        return await self._send_command(self.rest_api.set_charge_mode(vin, config))
 
     async def update_charging_profile(
         self, vin: str, profile: ChargingProfile
@@ -273,7 +273,9 @@ class OpenAPIClient:
         as returned by ``get_charging_profiles()`` with the desired fields
         changed, e.g. ``profile.settings.target_state_of_charge_in_percent = 80``.
         """
-        return await self.rest_api.update_charging_profile(vin, profile)
+        return await self._send_command(
+            self.rest_api.update_charging_profile(vin, profile)
+        )
 
     async def set_target_temperature(self, vin: str, temperature: float) -> None:
         """Sets the target temperature for AC or auxiliary heating for the vehicle with the given VIN."""

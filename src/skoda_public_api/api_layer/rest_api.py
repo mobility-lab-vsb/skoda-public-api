@@ -503,8 +503,10 @@ class SkodaRestAPI:
         url = f"/api/v1/vehicles/{vin}/charging/mode"
 
         payload = config.model_dump(mode="json", by_alias=True)
-        status = await self._make_command_request("PUT", url, json_data=payload)
-        return PostEndpointResult(url=url, status=status, headers={})
+        status, resp_headers = await self._make_command_request(
+            "PUT", url, json_data=payload
+        )
+        return PostEndpointResult(url=url, status=status, headers=resp_headers)
 
     async def update_charging_profile(
         self, vin: str, profile: ChargingProfile
@@ -518,5 +520,7 @@ class SkodaRestAPI:
         payload = profile.model_dump(mode="json", by_alias=True, exclude_none=True)
         # The API requires the timers list even when the profile has none.
         payload.setdefault("timers", [])
-        status = await self._make_command_request("PUT", url, json_data=payload)
-        return PostEndpointResult(url=url, status=status, headers={})
+        status, resp_headers = await self._make_command_request(
+            "PUT", url, json_data=payload
+        )
+        return PostEndpointResult(url=url, status=status, headers=resp_headers)
