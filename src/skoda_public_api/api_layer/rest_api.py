@@ -23,6 +23,7 @@ from ..models.vehicle_status import VehicleStatus
 from .const import BETA_URL
 from .exceptions import (
     OpenApiAuthenticationError,
+    OpenApiBadRequestError,
     OpenApiError,
     OpenApiForbiddenError,
     OpenApiRateLimitError,
@@ -134,11 +135,7 @@ async def _raise_for_status(response: ClientResponse) -> None:
         case 429:
             raise OpenApiRateLimitError(headers=headers, body=body)
         case 400:
-            raise OpenApiError(
-                "Bad request (e.g. validation or VIN issues).",
-                headers=headers,
-                body=body,
-            )
+            raise OpenApiBadRequestError(headers=headers, body=body)
         case 500:
             raise OpenApiServerError(headers=headers, body=body)
         case 503:

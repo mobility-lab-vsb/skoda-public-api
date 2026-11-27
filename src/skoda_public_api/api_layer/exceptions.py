@@ -112,6 +112,17 @@ class OpenApiError(Exception):
         return self.problem.detail if self.problem else None
 
 
+class OpenApiBadRequestError(OpenApiError):
+    """Error 400 - Bad request, e.g. validation or VIN issues.
+
+    What exactly the API rejected is in the problem object; read ``detail``
+    and ``problem_type`` for it.
+    """
+
+    default_message = "Bad request (e.g. validation or VIN issues)."
+    default_status_code = 400
+
+
 class OpenApiAuthenticationError(OpenApiError):
     """Error 401 - Invalid or Expired X-API-Key."""
 
