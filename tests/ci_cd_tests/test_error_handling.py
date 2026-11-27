@@ -10,6 +10,7 @@ import pytest
 from skoda_public_api.api_layer.const import TEST_BASE_URL
 from skoda_public_api.api_layer.exceptions import (
     OpenApiAuthenticationError,
+    OpenApiBadRequestError,
     OpenApiError,
     OpenApiForbiddenError,
     OpenApiRateLimitError,
@@ -126,6 +127,7 @@ async def test_rate_limit_error_carries_headers_and_problem(aresponses) -> None:
 @pytest.mark.parametrize(
     ("status", "problem_type", "error"),
     [
+        (400, None, OpenApiBadRequestError),
         (401, "api-key-expired", OpenApiAuthenticationError),
         (403, "api-key-not-authorized", OpenApiForbiddenError),
         (403, "operation-not-authorized", OpenApiForbiddenError),
