@@ -50,6 +50,8 @@ Which remote actions a vehicle actually supports is reported by the API: `Vehicl
 When a request fails, the library raises an `OpenApiError` subclass containing response headers and problem details if available:
 
 ```python
+import asyncio
+
 from skoda_public_api.api_layer.exceptions import OpenApiRateLimitError
 
 try:
