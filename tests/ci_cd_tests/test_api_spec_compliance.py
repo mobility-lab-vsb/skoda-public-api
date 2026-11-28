@@ -15,8 +15,10 @@ from skoda_public_api.api_layer.exceptions import (
 )
 from skoda_public_api.api_layer.open_api_client import OpenAPIClient
 from skoda_public_api.api_layer.rest_api import PostEndpointResult, SkodaRestAPI
+from skoda_public_api.models.charging_profiles import ChargingProfile
 from skoda_public_api.models.enums import (
     AuxiliaryHeatingState,
+    ChargeMode,
     ChargingState,
     LockState,
     MovementState,
@@ -229,6 +231,139 @@ async def test_set_charge_limit_rejected(aresponses) -> None:
         client = OpenAPIClient(api_key="fake", session=session, base_url=TEST_BASE_URL)
         with pytest.raises(OpenApiUnsupportedError):
             await client.set_charge_limit(VIN, 80)
+
+
+@pytest.mark.asyncio
+async def test_set_charge_mode(aresponses) -> None:
+    """The charge mode is sent as a PUT."""
+    received: dict = {}
+
+    async def handler(request: web.Request) -> web.Response:
+        received.update(await request.json())
+        return aresponses.Response(status=202)
+
+    aresponses.add(TEST_HOST, f"/api/v1/vehicles/{VIN}/charging/mode", "PUT", handler)
+
+    async with aiohttp.ClientSession() as session:
+        client = OpenAPIClient(api_key="fake", session=session, base_url=TEST_BASE_URL)
+        result = await client.set_charge_mode(VIN, ChargeMode.TIMER)
+
+    assert result.status == 202
+    assert received == {"chargeMode": "TIMER"}
+
+
+@pytest.mark.asyncio
+async def test_set_charge_mode_unknown() -> None:
+    """An unknown charge mode is rejected before anything is sent."""
+    client = OpenAPIClient(api_key="fake", session=MagicMock())
+    client.rest_api = AsyncMock(spec=SkodaRestAPI)
+
+    with pytest.raises(ValueError):
+        await client.set_charge_mode(VIN, ChargeMode.UNKNOWN)
+
+    client.rest_api.set_charge_mode.assert_not_awaited()
+
+
+CHARGING_PROFILE = {
+    "id": 123456,
+    "name": "Home",
+    "settings": {
+        "maxChargingCurrent": "MAXIMUM",
+        "minBatteryStateOfCharge": {
+            "enabled": True,
+            "minimumBatteryStateOfChargeInPercent": 20,
+        },
+        "targetStateOfChargeInPercent": 80,
+        "autoUnlockPlugWhenCharged": "PERMANENT",
+    },
+    "preferredChargingTimes": [
+        {"id": 1, "enabled": True, "startTime": "22:00", "endTime": "06:00"}
+    ],
+    "timers": [
+        {
+            "id": 1,
+            "enabled": True,
+            "time": "07:00",
+            "type": "RECURRING",
+            "recurringOn": ["MONDAY", "FRIDAY"],
+        }
+    ],
+}
+
+
+@pytest.mark.asyncio
+async def test_update_charging_profile(aresponses) -> None:
+    """The complete profile is sent back with the changed field, to the URL of its id."""
+    received: dict = {}
+
+    async def handler(request: web.Request) -> web.Response:
+        received.update(await request.json())
+        return aresponses.Response(status=202)
+
+    aresponses.add(
+        TEST_HOST, f"/api/v1/vehicles/{VIN}/charging-profiles/123456", "PUT", handler
+    )
+    profile = ChargingProfile.model_validate(CHARGING_PROFILE)
+    profile.settings.target_state_of_charge_in_percent = 90
+
+    async with aiohttp.ClientSession() as session:
+        client = OpenAPIClient(api_key="fake", session=session, base_url=TEST_BASE_URL)
+        result = await client.update_charging_profile(VIN, profile)
+
+    assert result.status == 202
+    expected = {
+        **CHARGING_PROFILE,
+        "settings": {
+            **CHARGING_PROFILE["settings"],
+            "targetStateOfChargeInPercent": 90,
+        },
+    }
+    assert received == expected
+
+
+@pytest.mark.asyncio
+async def test_update_charging_profile_without_timers(aresponses) -> None:
+    """The API requires the timers list, so a profile without timers sends an empty one."""
+    received: dict = {}
+
+    async def handler(request: web.Request) -> web.Response:
+        received.update(await request.json())
+        return aresponses.Response(status=202)
+
+    aresponses.add(
+        TEST_HOST, f"/api/v1/vehicles/{VIN}/charging-profiles/7", "PUT", handler
+    )
+    profile = ChargingProfile.model_validate(
+        {"id": 7, "name": "Work", "settings": {}, "preferredChargingTimes": []}
+    )
+
+    async with aiohttp.ClientSession() as session:
+        client = OpenAPIClient(api_key="fake", session=session, base_url=TEST_BASE_URL)
+        await client.update_charging_profile(VIN, profile)
+
+    assert received == {
+        "id": 7,
+        "name": "Work",
+        "settings": {},
+        "preferredChargingTimes": [],
+        "timers": [],
+    }
+
+
+@pytest.mark.parametrize("timers", [None, []], ids=["null", "empty"])
+def test_charging_profile_without_timers(timers: list | None) -> None:
+    """A profile reported with no timers has an empty list, never None."""
+    profile = ChargingProfile.model_validate(
+        {
+            "id": 7,
+            "name": "Work",
+            "settings": {},
+            "preferredChargingTimes": [],
+            "timers": timers,
+        }
+    )
+
+    assert profile.timers == []
 
 
 @pytest.mark.asyncio

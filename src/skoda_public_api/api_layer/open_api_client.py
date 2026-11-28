@@ -7,14 +7,16 @@ from ..models.active_ventilation import ActiveVentilation
 from ..models.air_conditioning import AirConditioning
 from ..models.auxiliary_heating import AuxiliaryHeating
 from ..models.charging import Charging
-from ..models.charging_profiles import ChargingProfiles
+from ..models.charging_profiles import ChargingProfile, ChargingProfiles
 from ..models.configurations import (
+    ChargeModeConfiguration,
     ChargingLimitConfiguration,
     ConfigurationTargetTemperature,
     StartAirConditioningConfiguration,
     StartAuxiliaryHeatingConfiguration,
 )
 from ..models.driving_range import FuelStatus
+from ..models.enums import ChargeMode
 from ..models.parking_position import ParkingPosition
 from ..models.vehicle import Odometer, VehicleResponse
 from ..models.vehicle_status import VehicleStatus
@@ -247,6 +249,30 @@ class OpenAPIClient:
         """
         config = ChargingLimitConfiguration(target_state_of_charge_in_percent=limit)
         return await self._send_command(self.rest_api.set_charging_limit(vin, config))
+
+    async def set_charge_mode(self, vin: str, mode: ChargeMode) -> PostEndpointResult:
+        """Sets the charge mode for the vehicle with the given VIN.
+
+        The modes a vehicle offers are reported in
+        ``Charging.settings.available_charge_modes``.
+        """
+        if mode is ChargeMode.UNKNOWN:
+            raise ValueError(f"Unknown charge mode: {mode}")
+        config = ChargeModeConfiguration(charge_mode=mode)
+        return await self._send_command(self.rest_api.set_charge_mode(vin, config))
+
+    async def update_charging_profile(
+        self, vin: str, profile: ChargingProfile
+    ) -> PostEndpointResult:
+        """Updates a charging profile of the vehicle with the given VIN.
+
+        The vehicle applies the profile as a whole, so pass the complete profile
+        as returned by ``get_charging_profiles()`` with the desired fields
+        changed, e.g. ``profile.settings.target_state_of_charge_in_percent = 80``.
+        """
+        return await self._send_command(
+            self.rest_api.update_charging_profile(vin, profile)
+        )
 
     async def set_target_temperature(self, vin: str, temperature: float) -> None:
         """Sets the target temperature for AC or auxiliary heating for the vehicle with the given VIN."""

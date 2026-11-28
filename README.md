@@ -9,7 +9,7 @@ It is built on [`aiohttp`](https://docs.aiohttp.org/) and [`pydantic`](https://d
 
 This works with Škoda vehicles with a Škoda Connect account. Different models of vehicles result in different types of attributes provided by the server.
 
-This version targets **API v1.0.0** of the [Škoda public API](https://public.api.connect.skoda-auto.cz/docs).
+This version targets **API v1.1.0** of the [Škoda public API](https://public.api.connect.skoda-auto.cz/docs).
 
 ## Installation
 
@@ -41,7 +41,16 @@ async def main() -> None:
 asyncio.run(main())
 ```
 
-Every response is a typed `pydantic` model — see [`src/skoda_public_api/models`](src/skoda_public_api/models) for the full data model, and [`src/skoda_public_api/api_layer/open_api_client.py`](src/skoda_public_api/api_layer/open_api_client.py) for the full list of available reads (vehicle status, odometer, charging, air conditioning, auxiliary heating, active ventilation, fuel status, parking position, charging profiles) and remote actions (start/stop charging, charge limit, air conditioning, auxiliary heating, active ventilation).
+Every response is a typed `pydantic` model — see [`src/skoda_public_api/models`](src/skoda_public_api/models) for the full data model, and [`src/skoda_public_api/api_layer/open_api_client.py`](src/skoda_public_api/api_layer/open_api_client.py) for the full list of available reads (vehicle status, odometer, charging, air conditioning, auxiliary heating, active ventilation, fuel status, parking position, charging profiles) and remote actions (start/stop charging, charge limit, charge mode, charging profiles, air conditioning, auxiliary heating, active ventilation).
+
+A charging profile is always updated as a whole: take it from `get_charging_profiles()`, change the fields you need and send the complete profile back:
+
+```python
+profiles = await client.get_charging_profiles("TMBJX7NY4PM054321")
+profile = profiles.profiles[0]
+profile.settings.target_state_of_charge_in_percent = 80
+await client.update_charging_profile("TMBJX7NY4PM054321", profile)
+```
 
 Which remote actions a vehicle actually supports is reported by the API: `VehicleResponse.supported_operations()` returns them, and `VehicleResponse.supported_capabilities()` tells which data the vehicle provides.
 
@@ -95,6 +104,8 @@ Remote operations can be started as well:
 ```sh
 skodactl --api-key XXX start-air-conditioning TMBJX7NY4PM054321 --temperature 21
 skodactl --api-key XXX set-charge-limit TMBJX7NY4PM054321 80
+skodactl --api-key XXX set-charge-mode TMBJX7NY4PM054321 TIMER
+skodactl --api-key XXX update-charging-profile TMBJX7NY4PM054321 profile.json
 ```
 
 Run `skodactl --help` for the full list of commands and options.

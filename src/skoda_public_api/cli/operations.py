@@ -1,17 +1,20 @@
 """Commands for the CLI for operations that can be performed."""
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TextIO
 
 import asyncclick as click
 from asyncclick.core import Context
+from pydantic import ValidationError
 
-from ..models.enums import TemperatureUnit
+from ..models.charging_profiles import ChargingProfile
+from ..models.enums import ChargeMode, TemperatureUnit
 from .utils import StrEnumChoice, handle_request
 
 if TYPE_CHECKING:
     from ..api_layer.open_api_client import OpenAPIClient
 
 TEMPERATURE_UNITS = [TemperatureUnit.CELSIUS, TemperatureUnit.FAHRENHEIT]
+CHARGE_MODES = [mode for mode in ChargeMode if mode is not ChargeMode.UNKNOWN]
 
 
 @click.command()
@@ -173,3 +176,32 @@ async def set_charge_limit(ctx: Context, vin: str, limit: int) -> None:
     """Set the charging limit in percent (typically 50 to 100 in steps of 10)."""
     client: OpenAPIClient = ctx.obj["client"]
     await handle_request(ctx, client.set_charge_limit, vin, limit)
+
+
+@click.command()
+@click.argument("vin")
+@click.argument("mode", type=StrEnumChoice(CHARGE_MODES))
+@click.pass_context
+async def set_charge_mode(ctx: Context, vin: str, mode: ChargeMode) -> None:
+    """Set the charge mode, e.g. MANUAL or TIMER."""
+    client: OpenAPIClient = ctx.obj["client"]
+    await handle_request(ctx, client.set_charge_mode, vin, mode)
+
+
+@click.command()
+@click.argument("vin")
+@click.argument("profile_file", type=click.File("r", encoding="utf-8"))
+@click.pass_context
+async def update_charging_profile(ctx: Context, vin: str, profile_file: TextIO) -> None:
+    """Update a charging profile from a JSON file ("-" reads standard input).
+
+    The vehicle applies the profile as a whole: take one profile from the output
+    of get-charging-profiles, change the fields you need and pass the complete
+    profile.
+    """
+    try:
+        profile = ChargingProfile.model_validate_json(profile_file.read())
+    except ValidationError as err:
+        raise click.BadParameter(str(err), param_hint="PROFILE_FILE") from err
+    client: OpenAPIClient = ctx.obj["client"]
+    await handle_request(ctx, client.update_charging_profile, vin, profile)
