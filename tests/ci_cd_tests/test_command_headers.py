@@ -7,6 +7,7 @@ from skoda_public_api.api_layer.const import TEST_BASE_URL
 from skoda_public_api.api_layer.exceptions import OpenApiRateLimitError
 from skoda_public_api.api_layer.open_api_client import OpenAPIClient
 from skoda_public_api.models.charging_profiles import ChargingProfile
+from skoda_public_api.models.enums import ChargeMode
 
 VIN = "TMBJW0NZ8SC006012"
 TEST_HOST = "public.test-api.connect.skoda-auto.cz"
@@ -36,7 +37,11 @@ def _client(session: aiohttp.ClientSession) -> OpenAPIClient:
         ),
         pytest.param("PUT", "charging/limit", "set_charge_limit", (80,), id="put"),
         pytest.param(
-            "PUT", "charging/mode", "set_charge_mode", ("TIMER",), id="charge_mode"
+            "PUT",
+            "charging/mode",
+            "set_charge_mode",
+            (ChargeMode.TIMER,),
+            id="charge_mode",
         ),
         pytest.param(
             "PUT",

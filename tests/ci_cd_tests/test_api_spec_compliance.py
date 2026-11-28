@@ -234,9 +234,8 @@ async def test_set_charge_limit_rejected(aresponses) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mode", [ChargeMode.TIMER, "TIMER"])
-async def test_set_charge_mode(aresponses, mode: ChargeMode | str) -> None:
-    """The charge mode is sent as a PUT, given as enum member or string."""
+async def test_set_charge_mode(aresponses) -> None:
+    """The charge mode is sent as a PUT."""
     received: dict = {}
 
     async def handler(request: web.Request) -> web.Response:
@@ -247,21 +246,20 @@ async def test_set_charge_mode(aresponses, mode: ChargeMode | str) -> None:
 
     async with aiohttp.ClientSession() as session:
         client = OpenAPIClient(api_key="fake", session=session, base_url=TEST_BASE_URL)
-        result = await client.set_charge_mode(VIN, mode)
+        result = await client.set_charge_mode(VIN, ChargeMode.TIMER)
 
     assert result.status == 202
     assert received == {"chargeMode": "TIMER"}
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mode", ["SOME_FUTURE_MODE", ChargeMode.UNKNOWN])
-async def test_set_charge_mode_unknown(mode: ChargeMode | str) -> None:
+async def test_set_charge_mode_unknown() -> None:
     """An unknown charge mode is rejected before anything is sent."""
     client = OpenAPIClient(api_key="fake", session=MagicMock())
     client.rest_api = AsyncMock(spec=SkodaRestAPI)
 
     with pytest.raises(ValueError):
-        await client.set_charge_mode(VIN, mode)
+        await client.set_charge_mode(VIN, ChargeMode.UNKNOWN)
 
     client.rest_api.set_charge_mode.assert_not_awaited()
 
@@ -350,6 +348,22 @@ async def test_update_charging_profile_without_timers(aresponses) -> None:
         "preferredChargingTimes": [],
         "timers": [],
     }
+
+
+@pytest.mark.parametrize("timers", [None, []], ids=["null", "empty"])
+def test_charging_profile_without_timers(timers: list | None) -> None:
+    """A profile reported with no timers has an empty list, never None."""
+    profile = ChargingProfile.model_validate(
+        {
+            "id": 7,
+            "name": "Work",
+            "settings": {},
+            "preferredChargingTimes": [],
+            "timers": timers,
+        }
+    )
+
+    assert profile.timers == []
 
 
 @pytest.mark.asyncio

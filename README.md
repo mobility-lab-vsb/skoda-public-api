@@ -9,7 +9,7 @@ It is built on [`aiohttp`](https://docs.aiohttp.org/) and [`pydantic`](https://d
 
 This works with Škoda vehicles with a Škoda Connect account. Different models of vehicles result in different types of attributes provided by the server.
 
-This version targets **API v1.0.0** of the [Škoda public API](https://public.api.connect.skoda-auto.cz/docs).
+This version targets **API v1.1.0** of the [Škoda public API](https://public.api.connect.skoda-auto.cz/docs).
 
 ## Installation
 

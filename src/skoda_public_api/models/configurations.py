@@ -43,4 +43,4 @@ class ChargingLimitConfiguration(BaseModel):
 class ChargeModeConfiguration(BaseModel):
     """Configuration for setting the charge mode."""
 
-    charge_mode: ChargeMode = Field(..., alias="chargeMode")
+    charge_mode: ChargeMode

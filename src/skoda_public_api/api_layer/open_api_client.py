@@ -250,18 +250,15 @@ class OpenAPIClient:
         config = ChargingLimitConfiguration(target_state_of_charge_in_percent=limit)
         return await self._send_command(self.rest_api.set_charging_limit(vin, config))
 
-    async def set_charge_mode(
-        self, vin: str, mode: ChargeMode | str
-    ) -> PostEndpointResult:
+    async def set_charge_mode(self, vin: str, mode: ChargeMode) -> PostEndpointResult:
         """Sets the charge mode for the vehicle with the given VIN.
 
         The modes a vehicle offers are reported in
         ``Charging.settings.available_charge_modes``.
         """
-        charge_mode = ChargeMode(mode)
-        if charge_mode is ChargeMode.UNKNOWN:
+        if mode is ChargeMode.UNKNOWN:
             raise ValueError(f"Unknown charge mode: {mode}")
-        config = ChargeModeConfiguration(charge_mode=charge_mode)
+        config = ChargeModeConfiguration(charge_mode=mode)
         return await self._send_command(self.rest_api.set_charge_mode(vin, config))
 
     async def update_charging_profile(

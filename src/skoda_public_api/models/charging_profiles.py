@@ -1,3 +1,7 @@
+from typing import Any
+
+from pydantic import Field, field_validator
+
 from .base_model import BaseModel
 
 
@@ -44,7 +48,14 @@ class ChargingProfile(BaseModel):
     name: str
     settings: ChargingProfileSettings
     preferred_charging_times: list[ChargingTime]
-    timers: list[Timer] | None = None
+    # Required by the API when updating a profile, so it is never None.
+    timers: list[Timer] = Field(default_factory=list)
+
+    @field_validator("timers", mode="before")
+    @classmethod
+    def _timers_none_as_empty(cls, value: Any) -> Any:
+        """Treat a null timers list in a response as no timers."""
+        return [] if value is None else value
 
 
 class CurrentVehiclePositionProfile(BaseModel):

@@ -517,9 +517,8 @@ class SkodaRestAPI:
         """
         url = f"/api/v1/vehicles/{vin}/charging-profiles/{profile.id}"
 
+        # Fields the vehicle did not report are left out rather than sent as null.
         payload = profile.model_dump(mode="json", by_alias=True, exclude_none=True)
-        # The API requires the timers list even when the profile has none.
-        payload.setdefault("timers", [])
         status, resp_headers = await self._make_command_request(
             "PUT", url, json_data=payload
         )
